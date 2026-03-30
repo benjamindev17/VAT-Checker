@@ -30,14 +30,45 @@
  
   body {
     font-family: 'Noto Sans', sans-serif;
-    background: var(--bg);
+    background: #000;
     color: var(--text);
     min-height: 100vh;
+    overflow-x: hidden;
+  }
+ 
+  /* Canvas Earth background */
+  .space-bg {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    overflow: hidden;
+    background: #000;
+  }
+  .space-bg canvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+  }
+ 
+  /* Content layer */
+  .content-layer {
+    position: relative;
+    z-index: 1;
+  }
+ 
+  /* Glassmorphism adjustments for cards on dark bg */
+  .card, .result-card {
+    background: rgba(255,255,255,0.92) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
  
   /* Header */
   .header {
-    background: var(--primary);
+    background: rgba(113, 75, 103, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     color: white;
     padding: 14px 28px;
     display: flex;
@@ -463,6 +494,14 @@
 </head>
 <body>
  
+<!-- Earth background image -->
+<div class="space-bg">
+  <canvas id="earthCanvas"></canvas>
+</div>
+ 
+<!-- Content -->
+<div class="content-layer">
+ 
 <div class="header">
   <div class="header-icon">📋</div>
   Assistant Fiscalité & TVA
@@ -830,8 +869,236 @@ function resetAll() {
   document.getElementById('eu-country').value = '';
   document.getElementById('vat-verify-section').style.display = 'none';
   clearResult();
+  highlightCountry(null);
 }
+ 
+// =============================================
+// 3D EUROPE GLOBE — Canvas rendering
+// =============================================
+const canvas = document.getElementById('earthCanvas');
+const ctx = canvas.getContext('2d');
+let W, H, time = 0, highlightedCountry = null, geoData = null;
+const stars = Array.from({length:180}, () => ({x:Math.random(),y:Math.random(),s:Math.random()*1.2+0.3,b:Math.random()*0.4+0.15,sp:Math.random()*0.003+0.001}));
+ 
+function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+resize(); window.addEventListener('resize', resize);
+ 
+// Load country borders
+fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+  .then(r => r.json()).then(topo => { geoData = decodeTopo(topo); animate(); })
+  .catch(() => animate());
+ 
+function decodeTopo(topo) {
+  const arcs = topo.arcs, sc = topo.transform.scale, tr = topo.transform.translate;
+  const da = arcs.map(a => { let x=0,y=0; return a.map(p => { x+=p[0];y+=p[1]; return [x*sc[0]+tr[0],y*sc[1]+tr[1]]; }); });
+  const iso = {'56':'BE','276':'DE','250':'FR','826':'GB','380':'IT','724':'ES','620':'PT','528':'NL','442':'LU','756':'CH','40':'AT','208':'DK','752':'SE','246':'FI','372':'IE','616':'PL','203':'CZ','703':'SK','348':'HU','642':'RO','100':'BG','300':'GR','191':'HR','705':'SI','233':'EE','428':'LV','440':'LT','196':'CY','470':'MT','578':'NO','804':'UA','112':'BY','643':'RU','688':'RS','70':'BA','499':'ME','807':'MK','8':'AL','498':'MD','792':'TR','788':'TN','12':'DZ','504':'MA','434':'LY','818':'EG'};
+  const ra = i => i >= 0 ? da[i] : [...da[~i]].reverse();
+  const feats = [];
+  topo.objects.countries.geometries.forEach(g => {
+    const rings = [];
+    const proc = refs => { let c=[]; refs.forEach(i => c=c.concat(ra(i))); rings.push(c); };
+    if (g.type==='Polygon') g.arcs.forEach(proc);
+    else if (g.type==='MultiPolygon') g.arcs.forEach(p => p.forEach(proc));
+    feats.push({ iso: iso[String(g.id)]||null, rings });
+  });
+  return feats;
+}
+ 
+// 3D projection — oblique view from SW, like the ISS photo
+function project(lon, lat, t) {
+  const lookLat = (44 + Math.sin(t*0.00012)*0.8) * Math.PI/180;
+  const lookLon = (8 + Math.cos(t*0.0001)*1.0) * Math.PI/180;
+  const camAz = (215 + Math.sin(t*0.00008)*2) * Math.PI/180;
+  const camEl = (32 + Math.sin(t*0.00007)*1.5) * Math.PI/180;
+  const CD = 1.25; // camera distance from center (in sphere radii)
+ 
+  const phi = lat*Math.PI/180, lam = lon*Math.PI/180;
+  const px = Math.cos(phi)*Math.cos(lam), py = Math.cos(phi)*Math.sin(lam), pz = Math.sin(phi);
+  const lx = Math.cos(lookLat)*Math.cos(lookLon), ly = Math.cos(lookLat)*Math.sin(lookLon), lz = Math.sin(lookLat);
+  const cx = lx - Math.cos(camEl)*Math.cos(camAz)*(CD-1);
+  const cy = ly - Math.cos(camEl)*Math.sin(camAz)*(CD-1);
+  const cz = lz + Math.sin(camEl)*(CD-1);
+ 
+  let fx=lx-cx, fy=ly-cy, fz=lz-cz;
+  const fl=Math.sqrt(fx*fx+fy*fy+fz*fz); fx/=fl;fy/=fl;fz/=fl;
+  let rx=fy*1-fz*0, ry=fz*0-fx*1, rz=fx*0-fy*0;
+  const rl=Math.sqrt(rx*rx+ry*ry+rz*rz); rx/=rl;ry/=rl;rz/=rl;
+  let ux=ry*fz-rz*fy, uy=rz*fx-rx*fz, uz=rx*fy-ry*fx;
+ 
+  const ro=Math.sin(t*0.00006)*0.025, cr=Math.cos(ro), sr=Math.sin(ro);
+  const rx2=rx*cr+ux*sr, ry2=ry*cr+uy*sr, rz2=rz*cr+uz*sr;
+  const ux2=-rx*sr+ux*cr, uy2=-ry*sr+uy*cr, uz2=-rz*sr+uz*cr;
+ 
+  const dx=px-cx, dy=py-cy, dz=pz-cz;
+  const cZ=dx*fx+dy*fy+dz*fz;
+  if(cZ<0.05) return null;
+  const cX=dx*rx2+dy*ry2+dz*rz2, cY=dx*ux2+dy*uy2+dz*uz2;
+ 
+  const dot=px*cx+py*cy+pz*cz;
+  const cd=Math.sqrt(cx*cx+cy*cy+cz*cz);
+  if(dot/cd < 1.0/cd*0.85) return null;
+ 
+  const fov=1.4, ss=Math.min(W,H)*fov/cZ;
+  return { x:W*0.5+cX*ss, y:H*0.5-cY*ss, z:cZ, d:dot/cd };
+}
+ 
+const EU = new Set(['BE','DE','FR','IT','ES','PT','NL','LU','CH','AT','DK','SE','FI','IE','PL','CZ','SK','HU','RO','BG','GR','HR','SI','EE','LV','LT','CY','MT','GB','NO']);
+ 
+// City lights
+const C = [
+  {a:51.51,o:-0.13,s:6,c:'GB'},{a:48.86,o:2.35,s:6,c:'FR'},{a:52.52,o:13.41,s:5,c:'DE'},
+  {a:40.42,o:-3.70,s:5,c:'ES'},{a:41.90,o:12.50,s:5,c:'IT'},{a:45.46,o:9.19,s:5,c:'IT'},
+  {a:50.85,o:4.35,s:4,c:'BE'},{a:52.37,o:4.90,s:4,c:'NL'},{a:48.21,o:16.37,s:4,c:'AT'},
+  {a:59.33,o:18.07,s:3.5,c:'SE'},{a:55.68,o:12.57,s:3.5,c:'DK'},{a:60.17,o:24.94,s:3,c:'FI'},
+  {a:38.72,o:-9.14,s:4,c:'PT'},{a:52.23,o:21.01,s:4,c:'PL'},{a:47.50,o:19.04,s:3.5,c:'HU'},
+  {a:44.43,o:26.10,s:3.5,c:'RO'},{a:37.98,o:23.73,s:3.5,c:'GR'},{a:53.35,o:-6.26,s:3,c:'IE'},
+  {a:53.48,o:-2.24,s:4,c:'GB'},{a:55.95,o:-3.19,s:2.5,c:'GB'},{a:51.45,o:-2.59,s:3,c:'GB'},
+  {a:45.76,o:4.84,s:3.5,c:'FR'},{a:43.30,o:5.37,s:3,c:'FR'},{a:43.60,o:1.44,s:2.5,c:'FR'},
+  {a:44.84,o:-0.58,s:2.5,c:'FR'},{a:43.70,o:7.27,s:2.5,c:'FR'},
+  {a:48.14,o:11.58,s:4,c:'DE'},{a:53.55,o:9.99,s:3.5,c:'DE'},{a:50.94,o:6.96,s:3.5,c:'DE'},
+  {a:50.11,o:8.68,s:4,c:'DE'},{a:48.78,o:9.18,s:3,c:'DE'},{a:51.34,o:12.37,s:2.5,c:'DE'},
+  {a:41.39,o:2.17,s:4,c:'ES'},{a:39.47,o:-0.38,s:3,c:'ES'},{a:37.39,o:-5.98,s:2.5,c:'ES'},
+  {a:40.85,o:14.27,s:3.5,c:'IT'},{a:43.77,o:11.25,s:2.5,c:'IT'},{a:45.07,o:7.69,s:3,c:'IT'},
+  {a:41.15,o:-8.61,s:3,c:'PT'},{a:51.22,o:4.40,s:2.5,c:'BE'},{a:51.05,o:3.72,s:2,c:'BE'},
+  {a:51.92,o:4.48,s:2.5,c:'NL'},{a:47.38,o:8.54,s:3,c:'CH'},{a:46.20,o:6.14,s:2.5,c:'CH'},
+  {a:49.61,o:6.13,s:1.5,c:'LU'},{a:50.08,o:14.44,s:3,c:'CZ'},{a:48.15,o:17.11,s:2.5,c:'SK'},
+  {a:50.06,o:19.94,s:2.5,c:'PL'},{a:42.70,o:23.32,s:3,c:'BG'},{a:45.81,o:15.98,s:2.5,c:'HR'},
+  {a:46.06,o:14.51,s:2,c:'SI'},{a:59.44,o:24.75,s:2,c:'EE'},{a:56.95,o:24.11,s:2,c:'LV'},
+  {a:54.69,o:25.28,s:2,c:'LT'},{a:57.71,o:11.97,s:2,c:'SE'},
+  // Non-EU dim
+  {a:59.91,o:10.75,s:3,c:null},{a:55.76,o:37.62,s:5,c:null},{a:41.01,o:28.98,s:5,c:null},
+  {a:50.45,o:30.52,s:4,c:null},{a:36.75,o:3.06,s:2.5,c:null},{a:33.57,o:-7.59,s:3,c:null},
+  {a:30.04,o:31.24,s:4,c:null},
+];
+ 
+function drawFrame(t) {
+  ctx.clearRect(0,0,W,H);
+ 
+  // Space
+  ctx.fillStyle='#000005'; ctx.fillRect(0,0,W,H);
+  stars.forEach(s => {
+    ctx.fillStyle=`rgba(255,255,255,${s.b+Math.sin(t*s.sp)*0.1})`;
+    ctx.beginPath(); ctx.arc(s.x*W,s.y*H,s.s,0,Math.PI*2); ctx.fill();
+  });
+ 
+  // Horizon limb → compute earth shape
+  const lLat=(44+Math.sin(t*0.00012)*0.8)*Math.PI/180, lLon=(8+Math.cos(t*0.0001)*1.0)*Math.PI/180;
+  const limb=[];
+  for(let a=-180;a<=180;a+=2){
+    const az=a*Math.PI/180;
+    for(let d=55;d<=88;d+=4){
+      const dr=d*Math.PI/180;
+      const lat2=Math.asin(Math.sin(lLat)*Math.cos(dr)+Math.cos(lLat)*Math.sin(dr)*Math.cos(az));
+      const lon2=lLon+Math.atan2(Math.sin(az)*Math.sin(dr)*Math.cos(lLat),Math.cos(dr)-Math.sin(lLat)*Math.sin(lat2));
+      const p=project(lon2*180/Math.PI,lat2*180/Math.PI,t);
+      if(p) limb.push(p);
+    }
+  }
+ 
+  if(limb.length>10){
+    // Upper envelope for earth shape
+    const bk={};
+    limb.forEach(p=>{const b=Math.floor(p.x/8)*8;if(!(b in bk)||p.y<bk[b])bk[b]=p.y;});
+    const bxs=Object.keys(bk).map(Number).sort((a,b)=>a-b);
+ 
+    if(bxs.length>2){
+      // Ocean fill
+      ctx.save();ctx.beginPath();
+      ctx.moveTo(bxs[0]-200,H+200);
+      bxs.forEach(b=>ctx.lineTo(b,bk[b]));
+      ctx.lineTo(bxs[bxs.length-1]+200,H+200);ctx.closePath();
+      const og=ctx.createLinearGradient(0,0,0,H);
+      og.addColorStop(0,'#06101f');og.addColorStop(0.5,'#050c1a');og.addColorStop(1,'#030815');
+      ctx.fillStyle=og;ctx.fill();ctx.restore();
+ 
+      // Atmosphere glow
+      for(let i=0;i<18;i++){
+        ctx.beginPath();const off=-2-i*3;
+        ctx.moveTo(bxs[0]-80,bk[bxs[0]]+off);
+        bxs.forEach(b=>ctx.lineTo(b,bk[b]+off));
+        ctx.lineTo(bxs[bxs.length-1]+80,bk[bxs[bxs.length-1]]+off);
+        if(i<3){ctx.strokeStyle=`rgba(90,180,255,${0.28-i*0.07})`;ctx.lineWidth=2;}
+        else if(i<8){ctx.strokeStyle=`rgba(50,130,230,${0.1-(i-3)*0.018})`;ctx.lineWidth=3.5;}
+        else{ctx.strokeStyle=`rgba(30,80,180,${0.035-(i-8)*0.003})`;ctx.lineWidth=5;}
+        ctx.stroke();
+      }
+ 
+      // Clip earth
+      ctx.save();ctx.beginPath();
+      ctx.moveTo(bxs[0]-200,H+200);
+      bxs.forEach(b=>ctx.lineTo(b,bk[b]+1));
+      ctx.lineTo(bxs[bxs.length-1]+200,H+200);ctx.closePath();ctx.clip();
+    }
+  }
+ 
+  // Countries
+  if(geoData) geoData.forEach(f=>{
+    const isHL=highlightedCountry&&f.iso===highlightedCountry;
+    const isEU=f.iso&&EU.has(f.iso);
+    f.rings.forEach(ring=>{
+      ctx.beginPath();let st=false,vis=false;
+      for(let i=0;i<ring.length;i++){
+        const p=project(ring[i][0],ring[i][1],t);
+        if(!p){st=false;continue;}vis=true;
+        if(!st){ctx.moveTo(p.x,p.y);st=true;}else ctx.lineTo(p.x,p.y);
+      }
+      if(!vis)return;ctx.closePath();
+      if(isHL){
+        ctx.fillStyle='rgba(0,180,170,0.25)';ctx.strokeStyle='rgba(0,220,210,0.6)';
+        ctx.lineWidth=1.2;ctx.shadowColor='rgba(0,200,195,0.5)';ctx.shadowBlur=15;
+      }else if(isEU){
+        ctx.fillStyle='rgba(10,35,25,0.5)';ctx.strokeStyle='rgba(30,80,60,0.3)';
+        ctx.lineWidth=0.5;ctx.shadowBlur=0;
+      }else{
+        ctx.fillStyle='rgba(8,25,18,0.35)';ctx.strokeStyle='rgba(20,55,40,0.15)';
+        ctx.lineWidth=0.3;ctx.shadowBlur=0;
+      }
+      ctx.fill();ctx.stroke();ctx.shadowBlur=0;
+    });
+  });
+ 
+  // City lights
+  C.forEach(c=>{
+    const p=project(c.o,c.a,t);if(!p)return;
+    const isHL=highlightedCountry&&c.c===highlightedCountry;
+    const pulse=Math.sin(t*0.0025+c.a*0.12)*0.2+0.8;
+    const df=Math.pow(Math.max(0,Math.min(1,p.d)),0.5);
+    let col,al,gs;
+    if(isHL){col='0,230,220';al=0.95*df;gs=c.s*5;}
+    else if(c.c){col='255,200,60';al=(0.55+pulse*0.3)*df;gs=c.s*3.5;}
+    else{col='220,180,80';al=0.2*df;gs=c.s*2;}
+    const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,gs);
+    g.addColorStop(0,`rgba(${col},${al})`);g.addColorStop(0.25,`rgba(${col},${al*0.55})`);
+    g.addColorStop(0.6,`rgba(${col},${al*0.15})`);g.addColorStop(1,`rgba(${col},0)`);
+    ctx.beginPath();ctx.arc(p.x,p.y,gs,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
+    ctx.beginPath();ctx.arc(p.x,p.y,Math.max(0.5,c.s*0.4*df),0,Math.PI*2);
+    ctx.fillStyle=`rgba(${col},${Math.min(1,al*2)})`;ctx.fill();
+  });
+ 
+  ctx.restore();
+}
+ 
+function animate(){time+=16;drawFrame(time);requestAnimationFrame(animate);}
+ 
+function highlightCountry(code){
+  if(code==='UK')code='GB';
+  highlightedCountry=code;
+}
+ 
+const _origSelectLocation = selectLocation;
+selectLocation = function(loc) {
+  _origSelectLocation(loc);
+  highlightCountry({be:'BE',uk:'GB',ch:'CH',row:null,eu:null}[loc]||null);
+};
+ 
+const _origOnEuCountryChange = onEuCountryChange;
+onEuCountryChange = function() {
+  _origOnEuCountryChange();
+  highlightCountry(document.getElementById('eu-country').value||null);
+};
 </script>
+ 
+</div><!-- end content-layer -->
  
 </body>
 </html>
