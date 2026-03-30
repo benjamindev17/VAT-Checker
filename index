@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assistant Fiscalité & TVA</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #714B67;
+    --primary-dark: #5B3D54;
+    --primary-light: #8F6B82;
+    --teal: #00A09D;
+    --teal-dark: #008784;
+    --teal-light: #E6F5F5;
+    --bg: #F1F0EF;
+    --white: #FFFFFF;
+    --text: #2C2C33;
+    --text-muted: #6B7280;
+    --border: #DEE2E6;
+    --border-active: #00A09D;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.1);
+    --radius: 10px;
+    --radius-lg: 14px;
+  }
+ 
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+ 
+  body {
+    font-family: 'Noto Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+ 
+  /* Header */
+  .header {
+    background: var(--primary);
+    color: white;
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    box-shadow: 0 2px 8px rgba(113,75,103,0.3);
+  }
+  .header-icon {
+    width: 34px; height: 34px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+ 
+  /* Main layout */
+  .main {
+    max-width: 1080px;
+    margin: 32px auto;
+    padding: 0 24px;
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 24px;
+    align-items: start;
+  }
+  @media (max-width: 768px) {
+    .main { grid-template-columns: 1fr; }
+  }
+ 
+  /* Card */
+  .card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+  .card-header {
+    padding: 16px 22px;
+    font-weight: 600;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  .card-header .icon {
+    width: 22px; height: 22px;
+    color: var(--primary-light);
+  }
+  .card-body { padding: 22px; }
+ 
+  /* Section label */
+  .section-label {
+    font-weight: 600;
+    font-size: 13.5px;
+    color: var(--text);
+    margin-bottom: 14px;
+  }
+ 
+  /* Location grid */
+  .loc-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .loc-grid.row2 {
+    grid-template-columns: repeat(3, 1fr);
+    margin-top: 10px;
+  }
+ 
+  .loc-btn {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 10px 16px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+  }
+  .loc-btn:hover {
+    border-color: var(--border-active);
+    background: var(--teal-light);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+  .loc-btn.active {
+    border-color: var(--border-active);
+    background: var(--teal-light);
+    box-shadow: 0 0 0 1px var(--border-active);
+  }
+  .loc-btn .loc-icon {
+    font-size: 24px;
+    color: var(--text-muted);
+    transition: color 0.2s;
+  }
+  .loc-btn.active .loc-icon,
+  .loc-btn:hover .loc-icon { color: var(--teal); }
+  .loc-btn .loc-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+  }
+  .loc-btn.active .loc-label { color: var(--teal-dark); }
+  .loc-btn .loc-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+ 
+  /* Conditional sections */
+  .conditional { margin-top: 22px; animation: fadeSlide 0.3s ease; }
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+ 
+  /* Select */
+  .select-wrap { position: relative; margin-bottom: 4px; }
+  .select-wrap select {
+    width: 100%;
+    padding: 11px 38px 11px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13.5px;
+    color: var(--text);
+    background: var(--white);
+    appearance: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .select-wrap select:focus {
+    outline: none;
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(0,160,157,0.1);
+  }
+  .select-wrap::after {
+    content: '▾';
+    position: absolute;
+    right: 14px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+    font-size: 14px;
+  }
+ 
+  /* B2B/B2C buttons */
+  .status-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .status-btn {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 10px 14px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .status-btn:hover {
+    border-color: var(--border-active);
+    background: var(--teal-light);
+  }
+  .status-btn.active {
+    border-color: var(--border-active);
+    background: var(--teal-light);
+    box-shadow: 0 0 0 1px var(--border-active);
+  }
+  .status-btn .s-icon { font-size: 22px; color: var(--text-muted); }
+  .status-btn.active .s-icon { color: var(--teal); }
+  .status-btn .s-label { font-size: 13px; font-weight: 600; color: var(--text); }
+  .status-btn.active .s-label { color: var(--teal-dark); }
+  .status-btn .s-sub { font-size: 11px; color: var(--text-muted); }
+  .status-btn.active .s-sub { color: var(--teal); }
+ 
+  /* VAT verification */
+  .vat-verify {
+    background: #F9FAFB;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .vat-verify p {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+  .vat-verify a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: var(--white);
+    color: var(--text);
+    text-decoration: none;
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .vat-verify a:hover {
+    border-color: var(--teal);
+    color: var(--teal);
+    background: var(--teal-light);
+  }
+ 
+  /* VAT valid/invalid */
+  .vat-result { margin-top: 14px; }
+  .vat-result .section-label { margin-bottom: 10px; }
+  .vat-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .vat-btn {
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--white);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: all 0.2s;
+  }
+  .vat-btn:hover { border-color: var(--border-active); }
+  .vat-btn.valid.active {
+    border-color: var(--teal);
+    background: var(--teal-light);
+    color: var(--teal-dark);
+  }
+  .vat-btn.invalid.active {
+    border-color: #E8553D;
+    background: #FEF2F0;
+    color: #C7392A;
+  }
+ 
+  /* Right panel - result */
+  .result-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+  .result-card.has-result {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 1px var(--teal), var(--shadow-md);
+  }
+  .result-header {
+    padding: 16px 22px;
+    font-weight: 600;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+    transition: all 0.3s;
+  }
+  .result-card.has-result .result-header {
+    background: var(--teal-light);
+    border-bottom-color: rgba(0,160,157,0.2);
+    color: var(--teal-dark);
+  }
+  .result-body { padding: 22px; }
+ 
+  /* Placeholder */
+  .placeholder {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+  }
+  .placeholder .ph-icon {
+    width: 48px; height: 48px;
+    background: var(--bg);
+    border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-bottom: 14px;
+    font-size: 22px;
+    color: var(--primary-light);
+  }
+  .placeholder p { font-size: 13.5px; line-height: 1.5; }
+ 
+  /* Result content */
+  .result-content { animation: fadeSlide 0.35s ease; }
+  .tax-label { font-size: 12.5px; color: var(--text-muted); margin-bottom: 6px; }
+  .tax-rate {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .tax-rate .rate {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+  }
+  .tax-rate .name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--teal-dark);
+    background: var(--teal-light);
+    padding: 3px 10px;
+    border-radius: 6px;
+  }
+  .tax-explanation {
+    background: #F9FAFB;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--text);
+    margin-bottom: 18px;
+  }
+  .tax-action {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .tax-action .action-icon {
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: var(--teal);
+    font-size: 16px;
+  }
+  .tax-action .action-label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .tax-copy-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tax-copy-btn:hover {
+    border-color: var(--teal);
+    background: var(--teal-light);
+    color: var(--teal-dark);
+  }
+  .tax-copy-btn:active { transform: scale(0.98); }
+  .tax-copy-btn .copy-icon {
+    flex-shrink: 0;
+    font-size: 15px;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+  }
+  .tax-copy-btn:hover .copy-icon { opacity: 1; }
+  .tax-copy-btn.copied {
+    border-color: var(--teal);
+    background: var(--teal-light);
+    color: var(--teal-dark);
+  }
+ 
+  /* Reset button */
+  .reset-btn {
+    width: 100%;
+    padding: 13px;
+    background: var(--teal);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 6px;
+  }
+  .reset-btn:hover { background: var(--teal-dark); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+  .reset-btn:active { transform: translateY(0); }
+ 
+  /* Swiss rate info */
+  .swiss-note {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+ 
+<div class="header">
+  <div class="header-icon">📋</div>
+  Assistant Fiscalité & TVA
+</div>
+ 
+<div class="main">
+  <!-- Left panel -->
+  <div class="card">
+    <div class="card-header">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      Localisation du client
+    </div>
+    <div class="card-body">
+      <div class="section-label">Où est situé le client ?</div>
+      <div class="loc-grid">
+        <button class="loc-btn" data-loc="be" onclick="selectLocation('be')">
+          <span class="loc-icon">🏠</span>
+          <span class="loc-label">Belgique</span>
+        </button>
+        <button class="loc-btn" data-loc="eu" onclick="selectLocation('eu')">
+          <span class="loc-icon">€</span>
+          <span class="loc-label">Union Européenne</span>
+          <span class="loc-sub">(Hors BE)</span>
+        </button>
+        <button class="loc-btn" data-loc="uk" onclick="selectLocation('uk')">
+          <span class="loc-icon">£</span>
+          <span class="loc-label">Royaume-Uni</span>
+        </button>
+      </div>
+      <div class="loc-grid row2">
+        <button class="loc-btn" data-loc="ch" onclick="selectLocation('ch')">
+          <span class="loc-icon">⛰️</span>
+          <span class="loc-label">Suisse</span>
+        </button>
+        <button class="loc-btn" data-loc="row" onclick="selectLocation('row')">
+          <span class="loc-icon">✈️</span>
+          <span class="loc-label">Reste du monde</span>
+        </button>
+        <div></div>
+      </div>
+ 
+      <!-- EU conditional fields -->
+      <div id="eu-fields" class="conditional" style="display:none;">
+        <div class="section-label">Pays membre de l'UE</div>
+        <div class="select-wrap" style="margin-bottom:18px;">
+          <select id="eu-country" onchange="onEuCountryChange()">
+            <option value="">— Sélectionnez un pays —</option>
+            <option value="DE">Allemagne</option>
+            <option value="AT">Autriche</option>
+            <option value="BG">Bulgarie</option>
+            <option value="HR">Croatie</option>
+            <option value="CY">Chypre</option>
+            <option value="DK">Danemark</option>
+            <option value="ES">Espagne</option>
+            <option value="EE">Estonie</option>
+            <option value="FI">Finlande</option>
+            <option value="FR">France</option>
+            <option value="GR">Grèce</option>
+            <option value="HU">Hongrie</option>
+            <option value="IE">Irlande</option>
+            <option value="IT">Italie</option>
+            <option value="LV">Lettonie</option>
+            <option value="LT">Lituanie</option>
+            <option value="LU">Luxembourg</option>
+            <option value="MT">Malte</option>
+            <option value="NL">Pays-Bas</option>
+            <option value="PL">Pologne</option>
+            <option value="PT">Portugal</option>
+            <option value="CZ">République tchèque</option>
+            <option value="RO">Roumanie</option>
+            <option value="RE">Réunion</option>
+            <option value="SK">Slovaquie</option>
+            <option value="SI">Slovénie</option>
+            <option value="SE">Suède</option>
+          </select>
+        </div>
+ 
+        <div class="section-label">Statut du client (TVA)</div>
+        <div class="status-grid">
+          <button class="status-btn" data-status="b2b" onclick="selectStatus('b2b')">
+            <span class="s-icon">🏢</span>
+            <span class="s-label">B2B (Entreprise)</span>
+            <span class="s-sub">Possède un N° de TVA</span>
+          </button>
+          <button class="status-btn" data-status="b2c" onclick="selectStatus('b2c')">
+            <span class="s-icon">👤</span>
+            <span class="s-label">B2C (Particulier)</span>
+            <span class="s-sub">Pas de N° de TVA</span>
+          </button>
+        </div>
+ 
+        <!-- B2B: VAT verification -->
+        <div id="vat-verify-section" style="display:none;">
+          <div class="vat-verify">
+            <p>Vérifiez la validité du numéro de TVA<br>sur le site officiel de l'UE :</p>
+            <a href="https://ec.europa.eu/taxation_customs/vies/" target="_blank" rel="noopener">🔗 Consulter VIES</a>
+          </div>
+          <div class="vat-result">
+            <div class="section-label">Résultat de la vérification :</div>
+            <div class="vat-btns">
+              <button class="vat-btn valid" onclick="selectVatResult('valid')">✅ TVA Valide</button>
+              <button class="vat-btn invalid" onclick="selectVatResult('invalid')">❌ TVA Invalide</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- Right panel -->
+  <div class="result-card" id="result-card">
+    <div class="result-header" id="result-header">
+      <span id="result-icon">ℹ️</span>
+      <span id="result-title">Régime applicable</span>
+    </div>
+    <div class="result-body" id="result-body">
+      <div class="placeholder" id="placeholder">
+        <div class="ph-icon">ℹ️</div>
+        <p>Sélectionnez la localisation du client pour<br>déterminer la TVA applicable.</p>
+      </div>
+      <div class="result-content" id="result-content" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+ 
+<script>
+const EU_VAT_RATES = {
+  DE: { name: 'Allemagne', nameEn: 'Germany', rate: 19 },
+  AT: { name: 'Autriche', nameEn: 'Austria', rate: 20 },
+  BG: { name: 'Bulgarie', nameEn: 'Bulgaria', rate: 20 },
+  HR: { name: 'Croatie', nameEn: 'Croatia', rate: 25 },
+  CY: { name: 'Chypre', nameEn: 'Cyprus', rate: 19 },
+  DK: { name: 'Danemark', nameEn: 'Denmark', rate: 25 },
+  ES: { name: 'Espagne', nameEn: 'Spain', rate: 21 },
+  EE: { name: 'Estonie', nameEn: 'Estonia', rate: 22, taxLabel: 'VAT for EU Services to Estonia' },
+  FI: { name: 'Finlande', nameEn: 'Finland', rate: 25.5 },
+  FR: { name: 'France', nameEn: 'France', rate: 20 },
+  GR: { name: 'Grèce', nameEn: 'Greece', rate: 24 },
+  HU: { name: 'Hongrie', nameEn: 'Hungary', rate: 27 },
+  IE: { name: 'Irlande', nameEn: 'Ireland', rate: 23 },
+  IT: { name: 'Italie', nameEn: 'Italy', rate: 22 },
+  LV: { name: 'Lettonie', nameEn: 'Latvia', rate: 21 },
+  LT: { name: 'Lituanie', nameEn: 'Lithuania', rate: 21 },
+  LU: { name: 'Luxembourg', nameEn: 'Luxembourg', rate: 17, taxLabel: 'VAT for EU Services to Luxembourg (17%)' },
+  MT: { name: 'Malte', nameEn: 'Malta', rate: 18 },
+  NL: { name: 'Pays-Bas', nameEn: 'Netherlands', rate: 21 },
+  PL: { name: 'Pologne', nameEn: 'Poland', rate: 23 },
+  PT: { name: 'Portugal', nameEn: 'Portugal', rate: 23 },
+  CZ: { name: 'République tchèque', nameEn: 'Czech Republic', rate: 21 },
+  RO: { name: 'Roumanie', nameEn: 'Romania', rate: 21, taxLabel: 'VAT for EU Services to Romanian (21)' },
+  RE: { name: 'Réunion', nameEn: 'Réunion', rate: 0, taxLabel: '0% Export Non EU', isExport: true },
+  SK: { name: 'Slovaquie', nameEn: 'Slovakia', rate: 23 },
+  SI: { name: 'Slovénie', nameEn: 'Slovenia', rate: 22 },
+  SE: { name: 'Suède', nameEn: 'Sweden', rate: 25 },
+};
+ 
+let state = { location: null, euCountry: '', status: null, vatResult: null };
+ 
+function selectLocation(loc) {
+  state = { location: loc, euCountry: '', status: null, vatResult: null };
+  document.querySelectorAll('.loc-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.loc-btn[data-loc="${loc}"]`).classList.add('active');
+ 
+  document.getElementById('eu-fields').style.display = loc === 'eu' ? 'block' : 'none';
+  document.getElementById('eu-country').value = '';
+  document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('vat-verify-section').style.display = 'none';
+  document.querySelectorAll('.vat-btn').forEach(b => b.classList.remove('active'));
+ 
+  if (loc !== 'eu') {
+    showResult(loc);
+  } else {
+    clearResult();
+  }
+}
+ 
+function onEuCountryChange() {
+  const country = document.getElementById('eu-country').value;
+  state.euCountry = country;
+  state.status = null;
+  state.vatResult = null;
+  document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('vat-verify-section').style.display = 'none';
+  document.querySelectorAll('.vat-btn').forEach(b => b.classList.remove('active'));
+ 
+  // If export territory (e.g. Réunion), skip B2B/B2C and show result directly
+  if (country && EU_VAT_RATES[country] && EU_VAT_RATES[country].isExport) {
+    showResult('eu_b2c');
+  } else {
+    clearResult();
+  }
+}
+ 
+function selectStatus(s) {
+  state.status = s;
+  state.vatResult = null;
+  document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.status-btn[data-status="${s}"]`).classList.add('active');
+  document.querySelectorAll('.vat-btn').forEach(b => b.classList.remove('active'));
+ 
+  if (s === 'b2b') {
+    document.getElementById('vat-verify-section').style.display = 'block';
+    clearResult();
+  } else {
+    document.getElementById('vat-verify-section').style.display = 'none';
+    if (state.euCountry) showResult('eu_b2c');
+    else clearResult();
+  }
+}
+ 
+function selectVatResult(r) {
+  state.vatResult = r;
+  document.querySelectorAll('.vat-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.vat-btn.${r}`).classList.add('active');
+ 
+  if (r === 'valid') showResult('eu_b2b_valid');
+  else showResult('eu_b2b_invalid');
+}
+ 
+function clearResult() {
+  const card = document.getElementById('result-card');
+  card.classList.remove('has-result');
+  document.getElementById('result-icon').textContent = 'ℹ️';
+  document.getElementById('result-title').textContent = 'Régime applicable';
+  document.getElementById('placeholder').style.display = 'block';
+  document.getElementById('result-content').style.display = 'none';
+}
+ 
+function showResult(scenario) {
+  let rate, taxName, explanation, taxToCopy;
+  const country = state.euCountry;
+  const countryInfo = EU_VAT_RATES[country];
+  const countryName = countryInfo ? countryInfo.name : '';
+  const countryNameEn = countryInfo ? countryInfo.nameEn : '';
+ 
+  switch(scenario) {
+    case 'be':
+      rate = '21%';
+      taxName = '21% Services';
+      taxToCopy = '21% Services';
+      explanation = 'Toutes les ventes de services à des clients belges (B2B ou B2C) sont soumises à la TVA belge standard.';
+      break;
+ 
+    case 'uk':
+      rate = '0%';
+      taxName = '0% Export Non EU';
+      taxToCopy = '0% Export Non EU';
+      explanation = 'Les services fournis à des clients situés au Royaume-Uni ne sont pas soumis à la TVA. Le Royaume-Uni est considéré comme un pays hors UE depuis le Brexit.';
+      break;
+ 
+    case 'ch':
+      rate = '8.1%';
+      taxName = '8.1% Sales Switzerland (CH)';
+      taxToCopy = '8.1% Sales Switzerland (CH)';
+      explanation = 'Les services fournis à des clients situés en Suisse sont soumis à la TVA suisse au taux de 8.1%. La Suisse n\'est pas membre de l\'UE et applique son propre régime fiscal.';
+      break;
+ 
+    case 'row':
+      rate = '0%';
+      taxName = '0% Export Non EU';
+      taxToCopy = '0% Export Non EU';
+      explanation = 'Les services fournis à des clients situés en dehors de l\'Union Européenne, du Royaume-Uni et de la Suisse ne sont pas soumis à la TVA belge.';
+      break;
+ 
+    case 'eu_b2b_valid':
+      rate = '0%';
+      taxName = '0% EU Services';
+      taxToCopy = '0% EU Services';
+      explanation = `Le client en ${countryName} dispose d'un numéro de TVA intracommunautaire valide. L'autoliquidation (reverse charge) s'applique : la TVA est due par le client dans son pays.`;
+      break;
+ 
+    case 'eu_b2b_invalid':
+      if (countryInfo && countryInfo.isExport) {
+        rate = '0%';
+        taxName = '0% Export Non EU';
+        taxToCopy = '0% Export Non EU';
+        explanation = `La Réunion est un territoire d'outre-mer. Les services fournis ne sont pas soumis à la TVA européenne.`;
+      } else {
+        rate = countryInfo ? countryInfo.rate + '%' : '—';
+        taxName = countryInfo && countryInfo.taxLabel ? countryInfo.taxLabel : `VAT for EU Services to ${countryNameEn}`;
+        taxToCopy = taxName;
+        explanation = `Le numéro de TVA est invalide. Vous devez facturer la TVA au taux en vigueur dans le pays du client (${countryName} : ${countryInfo ? countryInfo.rate : '—'}%). Le régime OSS (One-Stop-Shop) s'applique.`;
+      }
+      break;
+ 
+    case 'eu_b2c':
+      if (!country) return clearResult();
+      if (countryInfo && countryInfo.isExport) {
+        rate = '0%';
+        taxName = '0% Export Non EU';
+        taxToCopy = '0% Export Non EU';
+        explanation = `La Réunion est un territoire d'outre-mer. Les services fournis ne sont pas soumis à la TVA européenne.`;
+      } else {
+        rate = countryInfo ? countryInfo.rate + '%' : '—';
+        taxName = countryInfo && countryInfo.taxLabel ? countryInfo.taxLabel : `VAT for EU Services to ${countryNameEn}`;
+        taxToCopy = taxName;
+        explanation = `Le client est un particulier en ${countryName}. La TVA est due dans le pays du client via le régime OSS (One-Stop-Shop) au taux de ${countryInfo ? countryInfo.rate : '—'}%.`;
+      }
+      break;
+ 
+    default:
+      return clearResult();
+  }
+ 
+  const card = document.getElementById('result-card');
+  card.classList.add('has-result');
+  document.getElementById('result-icon').textContent = '✅';
+  document.getElementById('result-title').textContent = 'Régime applicable';
+  document.getElementById('placeholder').style.display = 'none';
+ 
+  const content = document.getElementById('result-content');
+  content.style.display = 'block';
+  content.innerHTML = `
+    <div class="tax-label">Taxe à sélectionner</div>
+    <div class="tax-rate">
+      <span class="rate">${rate}</span>
+      <span class="name">${taxName}</span>
+    </div>
+    <div class="tax-explanation">${explanation}</div>
+    <div class="tax-action">
+      <span class="action-icon">ℹ️</span>
+      <div>
+        <div class="action-label">Action requise sur le devis/facture :</div>
+      </div>
+    </div>
+    <button class="tax-copy-btn" onclick="copyTax(this, '${taxToCopy.replace(/'/g, "\\'")}')">
+      <span class="copy-text">${taxToCopy}</span>
+      <span class="copy-icon">📋 Copier</span>
+    </button>
+    <button class="reset-btn" onclick="resetAll()">Nouvelle simulation</button>
+  `;
+}
+ 
+function copyTax(btn, text) {
+  // Fallback method that works everywhere
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  try {
+    document.execCommand('copy');
+    btn.classList.add('copied');
+    btn.querySelector('.copy-text').textContent = '✅ Copié !';
+    btn.querySelector('.copy-icon').textContent = '';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.querySelector('.copy-text').textContent = text;
+      btn.querySelector('.copy-icon').textContent = '📋 Copier';
+    }, 2000);
+  } catch(e) {
+    // Last resort: prompt user
+    window.prompt('Copiez cette taxe :', text);
+  }
+  document.body.removeChild(textarea);
+}
+ 
+function resetAll() {
+  state = { location: null, euCountry: '', status: null, vatResult: null };
+  document.querySelectorAll('.loc-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.vat-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('eu-fields').style.display = 'none';
+  document.getElementById('eu-country').value = '';
+  document.getElementById('vat-verify-section').style.display = 'none';
+  clearResult();
+}
+</script>
+ 
+</body>
+</html>
