@@ -57,11 +57,12 @@
     z-index: 1;
   }
  
-  /* Glassmorphism adjustments for cards on dark bg */
+  /* Glassmorphism — light white semi-transparent panels */
   .card, .result-card {
-    background: rgba(255,255,255,0.92) !important;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.25) !important;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-color: rgba(255,255,255,0.35) !important;
   }
  
   /* Header */
@@ -86,6 +87,49 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 18px;
   }
+  .header-title { flex: 1; }
+ 
+  /* Language switcher */
+  .lang-switcher {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.12);
+    border: 1.5px solid rgba(255,255,255,0.25);
+    border-radius: 999px;
+    padding: 4px 6px;
+    gap: 2px;
+  }
+  .lang-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    border: none;
+    background: transparent;
+    color: rgba(255,255,255,0.7);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    letter-spacing: 0.3px;
+  }
+  .lang-btn:hover {
+    color: white;
+    background: rgba(255,255,255,0.12);
+  }
+  .lang-btn.active {
+    background: rgba(255,255,255,0.22);
+    color: white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+  .lang-flag {
+    font-size: 16px;
+    line-height: 1;
+  }
  
   /* Main layout */
   .main {
@@ -106,7 +150,7 @@
     background: var(--white);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
-    border: 1px solid var(--border);
+    border: 1px solid rgba(255,255,255,0.12);
     overflow: hidden;
     transition: box-shadow 0.2s;
   }
@@ -117,12 +161,14 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    border-bottom: 1px solid var(--border);
-    color: var(--text);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    background: rgba(255,255,255,0.06);
   }
   .card-header .icon {
     width: 22px; height: 22px;
-    color: var(--primary-light);
+    color: rgba(255,255,255,0.55);
   }
   .card-body { padding: 22px; }
  
@@ -130,7 +176,8 @@
   .section-label {
     font-weight: 600;
     font-size: 13.5px;
-    color: var(--text);
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.4);
     margin-bottom: 14px;
   }
  
@@ -147,8 +194,8 @@
   }
  
   .loc-btn {
-    background: var(--white);
-    border: 1.5px solid var(--border);
+    background: rgba(255,255,255,0.55);
+    border: 1.5px solid rgba(255,255,255,0.7);
     border-radius: var(--radius);
     padding: 18px 10px 16px;
     cursor: pointer;
@@ -161,33 +208,35 @@
     position: relative;
   }
   .loc-btn:hover {
-    border-color: var(--border-active);
-    background: var(--teal-light);
+    border-color: rgba(0,200,160,0.6);
+    background: rgba(0,180,140,0.15);
     transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 4px 16px rgba(0,180,140,0.2);
   }
   .loc-btn.active {
-    border-color: var(--border-active);
-    background: var(--teal-light);
-    box-shadow: 0 0 0 1px var(--border-active);
+    border-color: #00C896;
+    background: rgba(0,180,140,0.22);
+    box-shadow: 0 0 0 1.5px #00C896, 0 4px 20px rgba(0,200,150,0.25);
   }
   .loc-btn .loc-icon {
     font-size: 24px;
-    color: var(--text-muted);
+    color: rgba(255,255,255,0.6);
     transition: color 0.2s;
   }
   .loc-btn.active .loc-icon,
-  .loc-btn:hover .loc-icon { color: var(--teal); }
+  .loc-btn:hover .loc-icon { color: #00E8B0; }
   .loc-btn .loc-label {
     font-size: 13px;
     font-weight: 600;
-    color: var(--text);
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.4);
     line-height: 1.3;
   }
-  .loc-btn.active .loc-label { color: var(--teal-dark); }
+  .loc-btn.active .loc-label { color: #00E8B0; text-shadow: none; }
   .loc-btn .loc-sub {
     font-size: 11px;
-    color: var(--text-muted);
+    color: rgba(255,255,255,0.75);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
     font-weight: 400;
   }
  
@@ -203,27 +252,27 @@
   .select-wrap select {
     width: 100%;
     padding: 11px 38px 11px 14px;
-    border: 1.5px solid var(--border);
+    border: 1.5px solid rgba(255,255,255,0.4);
     border-radius: 8px;
     font-family: inherit;
     font-size: 13.5px;
-    color: var(--text);
-    background: var(--white);
+    color: #2C2C33;
+    background: rgba(255,255,255,0.55);
     appearance: none;
     cursor: pointer;
     transition: border-color 0.2s;
   }
   .select-wrap select:focus {
     outline: none;
-    border-color: var(--teal);
-    box-shadow: 0 0 0 3px rgba(0,160,157,0.1);
+    border-color: #00C896;
+    box-shadow: 0 0 0 3px rgba(0,200,150,0.15);
   }
   .select-wrap::after {
     content: '▾';
     position: absolute;
     right: 14px; top: 50%;
     transform: translateY(-50%);
-    color: var(--text-muted);
+    color: #6B7280;
     pointer-events: none;
     font-size: 14px;
   }
@@ -235,8 +284,8 @@
     gap: 10px;
   }
   .status-btn {
-    background: var(--white);
-    border: 1.5px solid var(--border);
+    background: rgba(255,255,255,0.55);
+    border: 1.5px solid rgba(255,255,255,0.7);
     border-radius: var(--radius);
     padding: 16px 10px 14px;
     cursor: pointer;
@@ -248,25 +297,25 @@
     gap: 8px;
   }
   .status-btn:hover {
-    border-color: var(--border-active);
-    background: var(--teal-light);
+    border-color: rgba(0,200,160,0.6);
+    background: rgba(0,180,140,0.15);
   }
   .status-btn.active {
-    border-color: var(--border-active);
-    background: var(--teal-light);
-    box-shadow: 0 0 0 1px var(--border-active);
+    border-color: #00C896;
+    background: rgba(0,180,140,0.22);
+    box-shadow: 0 0 0 1.5px #00C896, 0 4px 20px rgba(0,200,150,0.25);
   }
-  .status-btn .s-icon { font-size: 22px; color: var(--text-muted); }
-  .status-btn.active .s-icon { color: var(--teal); }
-  .status-btn .s-label { font-size: 13px; font-weight: 600; color: var(--text); }
-  .status-btn.active .s-label { color: var(--teal-dark); }
-  .status-btn .s-sub { font-size: 11px; color: var(--text-muted); }
-  .status-btn.active .s-sub { color: var(--teal); }
+  .status-btn .s-icon { font-size: 22px; color: rgba(255,255,255,0.5); }
+  .status-btn.active .s-icon { color: #00E8B0; }
+  .status-btn .s-label { font-size: 13px; font-weight: 600; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.4); }
+  .status-btn.active .s-label { color: #00E8B0; text-shadow: none; }
+  .status-btn .s-sub { font-size: 11px; color: rgba(255,255,255,0.75); text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+  .status-btn.active .s-sub { color: rgba(0,232,176,0.7); text-shadow: none; }
  
   /* VAT verification */
   .vat-verify {
-    background: #F9FAFB;
-    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
     border-radius: 8px;
     padding: 14px 16px;
     margin-top: 16px;
@@ -278,7 +327,7 @@
   }
   .vat-verify p {
     font-size: 12.5px;
-    color: var(--text-muted);
+    color: rgba(255,255,255,0.6);
     line-height: 1.4;
   }
   .vat-verify a {
@@ -286,10 +335,10 @@
     align-items: center;
     gap: 6px;
     padding: 8px 16px;
-    border: 1.5px solid var(--border);
+    border: 1.5px solid rgba(255,255,255,0.2);
     border-radius: 8px;
-    background: var(--white);
-    color: var(--text);
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.85);
     text-decoration: none;
     font-size: 12.5px;
     font-weight: 500;
@@ -298,9 +347,9 @@
     white-space: nowrap;
   }
   .vat-verify a:hover {
-    border-color: var(--teal);
-    color: var(--teal);
-    background: var(--teal-light);
+    border-color: #00C896;
+    color: #00E8B0;
+    background: rgba(0,180,140,0.15);
   }
  
   /* VAT valid/invalid */
@@ -310,25 +359,28 @@
   .vat-btn {
     padding: 10px 14px;
     border-radius: 8px;
-    border: 1.5px solid var(--border);
-    background: var(--white);
+    border: 1.5px solid rgba(255,255,255,0.7);
+    background: rgba(255,255,255,0.55);
     cursor: pointer;
     font-family: inherit;
     font-size: 13px;
     font-weight: 500;
+    color: rgba(255,255,255,0.85);
     display: flex; align-items: center; justify-content: center; gap: 6px;
     transition: all 0.2s;
   }
-  .vat-btn:hover { border-color: var(--border-active); }
+  .vat-btn:hover { border-color: rgba(0,200,160,0.5); }
   .vat-btn.valid.active {
-    border-color: var(--teal);
-    background: var(--teal-light);
-    color: var(--teal-dark);
+    border-color: #00C896;
+    background: rgba(0,180,140,0.22);
+    color: #00E8B0;
+    box-shadow: 0 0 0 1.5px #00C896;
   }
   .vat-btn.invalid.active {
     border-color: #E8553D;
-    background: #FEF2F0;
-    color: #C7392A;
+    background: rgba(232,85,61,0.18);
+    color: #ff8070;
+    box-shadow: 0 0 0 1.5px #E8553D;
   }
  
   /* Right panel - result */
@@ -336,13 +388,13 @@
     background: var(--white);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
-    border: 1px solid var(--border);
+    border: 1px solid rgba(255,255,255,0.12);
     overflow: hidden;
     transition: all 0.3s ease;
   }
   .result-card.has-result {
-    border-color: var(--teal);
-    box-shadow: 0 0 0 1px var(--teal), var(--shadow-md);
+    border-color: #00C896;
+    box-shadow: 0 0 0 1.5px #00C896, 0 8px 32px rgba(0,200,150,0.15);
   }
   .result-header {
     padding: 16px 22px;
@@ -351,13 +403,15 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.92);
+    background: rgba(255,255,255,0.06);
     transition: all 0.3s;
   }
   .result-card.has-result .result-header {
-    background: var(--teal-light);
-    border-bottom-color: rgba(0,160,157,0.2);
-    color: var(--teal-dark);
+    background: rgba(0,180,140,0.18);
+    border-bottom-color: rgba(0,200,150,0.2);
+    color: #00E8B0;
   }
   .result-body { padding: 22px; }
  
@@ -365,22 +419,21 @@
   .placeholder {
     text-align: center;
     padding: 40px 20px;
-    color: var(--text-muted);
+    color: rgba(255,255,255,0.45);
   }
   .placeholder .ph-icon {
     width: 48px; height: 48px;
-    background: var(--bg);
+    background: rgba(255,255,255,0.06);
     border-radius: 50%;
     display: inline-flex; align-items: center; justify-content: center;
     margin-bottom: 14px;
     font-size: 22px;
-    color: var(--primary-light);
   }
   .placeholder p { font-size: 13.5px; line-height: 1.5; }
  
   /* Result content */
   .result-content { animation: fadeSlide 0.35s ease; }
-  .tax-label { font-size: 12.5px; color: var(--text-muted); margin-bottom: 6px; }
+  .tax-label { font-size: 12.5px; color: rgba(255,255,255,0.5); margin-bottom: 6px; }
   .tax-rate {
     display: flex;
     align-items: baseline;
@@ -390,25 +443,26 @@
   .tax-rate .rate {
     font-size: 36px;
     font-weight: 700;
-    color: var(--text);
+    color: #fff;
     line-height: 1;
   }
   .tax-rate .name {
     font-size: 14px;
     font-weight: 500;
-    color: var(--teal-dark);
-    background: var(--teal-light);
+    color: #00E8B0;
+    background: rgba(0,180,140,0.18);
     padding: 3px 10px;
     border-radius: 6px;
+    border: 1px solid rgba(0,200,150,0.3);
   }
   .tax-explanation {
-    background: #F9FAFB;
-    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
     border-radius: 8px;
     padding: 14px 16px;
     font-size: 13px;
     line-height: 1.55;
-    color: var(--text);
+    color: rgba(255,255,255,0.8);
     margin-bottom: 18px;
   }
   .tax-action {
@@ -420,13 +474,12 @@
   .tax-action .action-icon {
     flex-shrink: 0;
     margin-top: 1px;
-    color: var(--teal);
     font-size: 16px;
   }
   .tax-action .action-label {
     font-size: 12.5px;
     font-weight: 600;
-    color: var(--text);
+    color: rgba(255,255,255,0.75);
     margin-bottom: 6px;
   }
   .tax-copy-btn {
@@ -435,21 +488,21 @@
     justify-content: space-between;
     gap: 10px;
     width: 100%;
-    background: var(--bg);
-    border: 1.5px solid var(--border);
+    background: rgba(255,255,255,0.07);
+    border: 1.5px solid rgba(255,255,255,0.18);
     border-radius: 8px;
     padding: 12px 16px;
     font-family: inherit;
     font-size: 13.5px;
     font-weight: 600;
-    color: var(--text);
+    color: rgba(255,255,255,0.88);
     cursor: pointer;
     transition: all 0.2s;
   }
   .tax-copy-btn:hover {
-    border-color: var(--teal);
-    background: var(--teal-light);
-    color: var(--teal-dark);
+    border-color: #00C896;
+    background: rgba(0,180,140,0.18);
+    color: #00E8B0;
   }
   .tax-copy-btn:active { transform: scale(0.98); }
   .tax-copy-btn .copy-icon {
@@ -460,18 +513,18 @@
   }
   .tax-copy-btn:hover .copy-icon { opacity: 1; }
   .tax-copy-btn.copied {
-    border-color: var(--teal);
-    background: var(--teal-light);
-    color: var(--teal-dark);
+    border-color: #00C896;
+    background: rgba(0,180,140,0.22);
+    color: #00E8B0;
   }
  
   /* Reset button */
   .reset-btn {
     width: 100%;
     padding: 13px;
-    background: var(--teal);
-    color: white;
-    border: none;
+    background: rgba(0,180,140,0.25);
+    border: 1.5px solid #00C896;
+    color: #00E8B0;
     border-radius: 8px;
     font-family: inherit;
     font-size: 14px;
@@ -480,16 +533,8 @@
     transition: all 0.2s;
     margin-top: 6px;
   }
-  .reset-btn:hover { background: var(--teal-dark); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+  .reset-btn:hover { background: rgba(0,180,140,0.4); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,200,150,0.25); }
   .reset-btn:active { transform: translateY(0); }
- 
-  /* Swiss rate info */
-  .swiss-note {
-    font-size: 11.5px;
-    color: var(--text-muted);
-    margin-top: 4px;
-    font-style: italic;
-  }
 </style>
 </head>
 <body>
@@ -504,7 +549,16 @@
  
 <div class="header">
   <div class="header-icon">📋</div>
-  Assistant Fiscalité & TVA
+  <span class="header-title" id="header-title">Assistant Fiscalité &amp; TVA</span>
+  <!-- Language switcher -->
+  <div class="lang-switcher">
+    <button class="lang-btn active" id="lang-fr" onclick="setLang('fr')">
+      <span class="lang-flag">🇫🇷</span> FR
+    </button>
+    <button class="lang-btn" id="lang-en" onclick="setLang('en')">
+      <span class="lang-flag">🇬🇧</span> EN
+    </button>
+  </div>
 </div>
  
 <div class="main">
@@ -512,98 +566,98 @@
   <div class="card">
     <div class="card-header">
       <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-      Localisation du client
+      <span id="card-header-loc">Localisation du client</span>
     </div>
     <div class="card-body">
-      <div class="section-label">Où est situé le client ?</div>
+      <div class="section-label" id="label-where">Où est situé le client ?</div>
       <div class="loc-grid">
         <button class="loc-btn" data-loc="be" onclick="selectLocation('be')">
           <span class="loc-icon">🏠</span>
-          <span class="loc-label">Belgique</span>
+          <span class="loc-label" id="loc-be-label">Belgique</span>
         </button>
         <button class="loc-btn" data-loc="eu" onclick="selectLocation('eu')">
           <span class="loc-icon">€</span>
-          <span class="loc-label">Union Européenne</span>
-          <span class="loc-sub">(Hors BE)</span>
+          <span class="loc-label" id="loc-eu-label">Union Européenne</span>
+          <span class="loc-sub" id="loc-eu-sub">(Hors BE)</span>
         </button>
         <button class="loc-btn" data-loc="uk" onclick="selectLocation('uk')">
           <span class="loc-icon">£</span>
-          <span class="loc-label">Royaume-Uni</span>
+          <span class="loc-label" id="loc-uk-label">Royaume-Uni</span>
         </button>
       </div>
       <div class="loc-grid row2">
         <button class="loc-btn" data-loc="ch" onclick="selectLocation('ch')">
           <span class="loc-icon">⛰️</span>
-          <span class="loc-label">Suisse</span>
+          <span class="loc-label" id="loc-ch-label">Suisse</span>
         </button>
         <button class="loc-btn" data-loc="row" onclick="selectLocation('row')">
           <span class="loc-icon">✈️</span>
-          <span class="loc-label">Reste du monde</span>
+          <span class="loc-label" id="loc-row-label">Reste du monde</span>
         </button>
         <div></div>
       </div>
  
       <!-- EU conditional fields -->
       <div id="eu-fields" class="conditional" style="display:none;">
-        <div class="section-label">Pays membre de l'UE</div>
+        <div class="section-label" id="label-eu-country">Pays membre de l'UE</div>
         <div class="select-wrap" style="margin-bottom:18px;">
           <select id="eu-country" onchange="onEuCountryChange()">
-            <option value="">— Sélectionnez un pays —</option>
-            <option value="DE">Allemagne</option>
-            <option value="AT">Autriche</option>
-            <option value="BG">Bulgarie</option>
-            <option value="HR">Croatie</option>
-            <option value="CY">Chypre</option>
-            <option value="DK">Danemark</option>
-            <option value="ES">Espagne</option>
-            <option value="EE">Estonie</option>
-            <option value="FI">Finlande</option>
+            <option value="" id="select-placeholder">— Sélectionnez un pays —</option>
+            <option value="DE">Allemagne / Germany</option>
+            <option value="AT">Autriche / Austria</option>
+            <option value="BG">Bulgarie / Bulgaria</option>
+            <option value="HR">Croatie / Croatia</option>
+            <option value="CY">Chypre / Cyprus</option>
+            <option value="DK">Danemark / Denmark</option>
+            <option value="ES">Espagne / Spain</option>
+            <option value="EE">Estonie / Estonia</option>
+            <option value="FI">Finlande / Finland</option>
             <option value="FR">France</option>
-            <option value="GR">Grèce</option>
-            <option value="HU">Hongrie</option>
-            <option value="IE">Irlande</option>
-            <option value="IT">Italie</option>
-            <option value="LV">Lettonie</option>
-            <option value="LT">Lituanie</option>
+            <option value="GR">Grèce / Greece</option>
+            <option value="HU">Hongrie / Hungary</option>
+            <option value="IE">Irlande / Ireland</option>
+            <option value="IT">Italie / Italy</option>
+            <option value="LV">Lettonie / Latvia</option>
+            <option value="LT">Lituanie / Lithuania</option>
             <option value="LU">Luxembourg</option>
-            <option value="MT">Malte</option>
-            <option value="NL">Pays-Bas</option>
-            <option value="PL">Pologne</option>
+            <option value="MT">Malte / Malta</option>
+            <option value="NL">Pays-Bas / Netherlands</option>
+            <option value="PL">Pologne / Poland</option>
             <option value="PT">Portugal</option>
-            <option value="CZ">République tchèque</option>
-            <option value="RO">Roumanie</option>
+            <option value="CZ">République tchèque / Czech Republic</option>
+            <option value="RO">Roumanie / Romania</option>
             <option value="RE">Réunion</option>
-            <option value="SK">Slovaquie</option>
-            <option value="SI">Slovénie</option>
-            <option value="SE">Suède</option>
+            <option value="SK">Slovaquie / Slovakia</option>
+            <option value="SI">Slovénie / Slovenia</option>
+            <option value="SE">Suède / Sweden</option>
           </select>
         </div>
  
-        <div class="section-label">Statut du client (TVA)</div>
+        <div class="section-label" id="label-vat-status">Statut du client (TVA)</div>
         <div class="status-grid">
           <button class="status-btn" data-status="b2b" onclick="selectStatus('b2b')">
             <span class="s-icon">🏢</span>
-            <span class="s-label">B2B (Entreprise)</span>
-            <span class="s-sub">Possède un N° de TVA</span>
+            <span class="s-label" id="b2b-label">B2B (Entreprise)</span>
+            <span class="s-sub" id="b2b-sub">Possède un N° de TVA</span>
           </button>
           <button class="status-btn" data-status="b2c" onclick="selectStatus('b2c')">
             <span class="s-icon">👤</span>
-            <span class="s-label">B2C (Particulier)</span>
-            <span class="s-sub">Pas de N° de TVA</span>
+            <span class="s-label" id="b2c-label">B2C (Particulier)</span>
+            <span class="s-sub" id="b2c-sub">Pas de N° de TVA</span>
           </button>
         </div>
  
         <!-- B2B: VAT verification -->
         <div id="vat-verify-section" style="display:none;">
           <div class="vat-verify">
-            <p>Vérifiez la validité du numéro de TVA<br>sur le site officiel de l'UE :</p>
-            <a href="https://ec.europa.eu/taxation_customs/vies/" target="_blank" rel="noopener">🔗 Consulter VIES</a>
+            <p id="vat-verify-text">Vérifiez la validité du numéro de TVA<br>sur le site officiel de l'UE :</p>
+            <a href="https://ec.europa.eu/taxation_customs/vies/" target="_blank" rel="noopener" id="vies-link">🔗 Consulter VIES</a>
           </div>
           <div class="vat-result">
-            <div class="section-label">Résultat de la vérification :</div>
+            <div class="section-label" id="label-vat-check">Résultat de la vérification :</div>
             <div class="vat-btns">
-              <button class="vat-btn valid" onclick="selectVatResult('valid')">✅ TVA Valide</button>
-              <button class="vat-btn invalid" onclick="selectVatResult('invalid')">❌ TVA Invalide</button>
+              <button class="vat-btn valid" onclick="selectVatResult('valid')" id="btn-vat-valid">✅ TVA Valide</button>
+              <button class="vat-btn invalid" onclick="selectVatResult('invalid')" id="btn-vat-invalid">❌ TVA Invalide</button>
             </div>
           </div>
         </div>
@@ -620,7 +674,7 @@
     <div class="result-body" id="result-body">
       <div class="placeholder" id="placeholder">
         <div class="ph-icon">ℹ️</div>
-        <p>Sélectionnez la localisation du client pour<br>déterminer la TVA applicable.</p>
+        <p id="placeholder-text">Sélectionnez la localisation du client pour<br>déterminer la TVA applicable.</p>
       </div>
       <div class="result-content" id="result-content" style="display:none;"></div>
     </div>
@@ -628,6 +682,174 @@
 </div>
  
 <script>
+// =============================================
+// TRANSLATIONS
+// =============================================
+const TRANSLATIONS = {
+  fr: {
+    pageTitle: 'Assistant Fiscalité & TVA',
+    headerTitle: 'Assistant Fiscalité & TVA',
+    cardHeaderLoc: 'Localisation du client',
+    labelWhere: 'Où est situé le client ?',
+    locBeLabel: 'Belgique',
+    locEuLabel: 'Union Européenne',
+    locEuSub: '(Hors BE)',
+    locUkLabel: 'Royaume-Uni',
+    locChLabel: 'Suisse',
+    locRowLabel: 'Reste du monde',
+    labelEuCountry: "Pays membre de l'UE",
+    selectPlaceholder: '— Sélectionnez un pays —',
+    labelVatStatus: 'Statut du client (TVA)',
+    b2bLabel: 'B2B (Entreprise)',
+    b2bSub: 'Possède un N° de TVA',
+    b2cLabel: 'B2C (Particulier)',
+    b2cSub: 'Pas de N° de TVA',
+    vatVerifyText: "Vérifiez la validité du numéro de TVA<br>sur le site officiel de l'UE :",
+    viesLink: '🔗 Consulter VIES',
+    labelVatCheck: 'Résultat de la vérification :',
+    btnVatValid: '✅ TVA Valide',
+    btnVatInvalid: '❌ TVA Invalide',
+    resultTitle: 'Régime applicable',
+    placeholderText: 'Sélectionnez la localisation du client pour<br>déterminer la TVA applicable.',
+    taxLabelText: 'Taxe à sélectionner',
+    actionLabel: 'Action requise sur le devis/facture :',
+    copyBtnText: '📋 Copier',
+    copiedText: '✅ Copié !',
+    newSimulation: 'Nouvelle simulation',
+    scenarios: {
+      be: {
+        rate: '21%',
+        taxName: '21% Services',
+        taxToCopy: '21% Services',
+        explanation: 'Toutes les ventes de services à des clients belges (B2B ou B2C) sont soumises à la TVA belge standard.'
+      },
+      uk: {
+        rate: '0%',
+        taxName: '0% Export Non EU',
+        taxToCopy: '0% Export Non EU',
+        explanation: "Les services fournis à des clients situés au Royaume-Uni ne sont pas soumis à la TVA. Le Royaume-Uni est considéré comme un pays hors UE depuis le Brexit."
+      },
+      ch: {
+        rate: '8.1%',
+        taxName: '8.1% Sales Switzerland (CH)',
+        taxToCopy: '8.1% Sales Switzerland (CH)',
+        explanation: "Les services fournis à des clients situés en Suisse sont soumis à la TVA suisse au taux de 8.1%. La Suisse n'est pas membre de l'UE et applique son propre régime fiscal."
+      },
+      row: {
+        rate: '0%',
+        taxName: '0% Export Non EU',
+        taxToCopy: '0% Export Non EU',
+        explanation: "Les services fournis à des clients situés en dehors de l'Union Européenne, du Royaume-Uni et de la Suisse ne sont pas soumis à la TVA belge."
+      },
+      eu_b2b_valid: (countryName) => ({
+        rate: '0%',
+        taxName: '0% EU Services',
+        taxToCopy: '0% EU Services',
+        explanation: `Le client en ${countryName} dispose d'un numéro de TVA intracommunautaire valide. L'autoliquidation (reverse charge) s'applique : la TVA est due par le client dans son pays.`
+      }),
+      eu_b2b_invalid: (countryName, rate) => ({
+        explanation: `Le numéro de TVA est invalide. Vous devez facturer la TVA au taux en vigueur dans le pays du client (${countryName} : ${rate}%). Le régime OSS (One-Stop-Shop) s'applique.`
+      }),
+      eu_b2b_invalid_reunion: {
+        rate: '0%',
+        taxName: '0% Export Non EU',
+        taxToCopy: '0% Export Non EU',
+        explanation: "La Réunion est un territoire d'outre-mer. Les services fournis ne sont pas soumis à la TVA européenne."
+      },
+      eu_b2c: (countryName, rate) => ({
+        explanation: `Le client est un particulier en ${countryName}. La TVA est due dans le pays du client via le régime OSS (One-Stop-Shop) au taux de ${rate}%.`
+      }),
+      eu_b2c_reunion: {
+        rate: '0%',
+        taxName: '0% Export Non EU',
+        taxToCopy: '0% Export Non EU',
+        explanation: "La Réunion est un territoire d'outre-mer. Les services fournis ne sont pas soumis à la TVA européenne."
+      }
+    }
+  },
+  en: {
+    pageTitle: 'VAT & Tax Assistant',
+    headerTitle: 'VAT & Tax Assistant',
+    cardHeaderLoc: 'Customer Location',
+    labelWhere: 'Where is the customer located?',
+    locBeLabel: 'Belgium',
+    locEuLabel: 'European Union',
+    locEuSub: '(Outside BE)',
+    locUkLabel: 'United Kingdom',
+    locChLabel: 'Switzerland',
+    locRowLabel: 'Rest of the World',
+    labelEuCountry: 'EU Member State',
+    selectPlaceholder: '— Select a country —',
+    labelVatStatus: 'Customer VAT Status',
+    b2bLabel: 'B2B (Business)',
+    b2bSub: 'Has a VAT number',
+    b2cLabel: 'B2C (Individual)',
+    b2cSub: 'No VAT number',
+    vatVerifyText: 'Check the validity of the VAT number<br>on the official EU website:',
+    viesLink: '🔗 Check VIES',
+    labelVatCheck: 'Verification result:',
+    btnVatValid: '✅ VAT Valid',
+    btnVatInvalid: '❌ VAT Invalid',
+    resultTitle: 'Applicable Tax Regime',
+    placeholderText: 'Select the customer location to<br>determine the applicable VAT.',
+    taxLabelText: 'Tax to select',
+    actionLabel: 'Required action on the quote/invoice:',
+    copyBtnText: '📋 Copy',
+    copiedText: '✅ Copied!',
+    newSimulation: 'New simulation',
+    scenarios: {
+      be: {
+        rate: '21%',
+        taxName: '21% Services',
+        taxToCopy: '21% Services',
+        explanation: 'All service sales to Belgian customers (B2B or B2C) are subject to the standard Belgian VAT rate.'
+      },
+      uk: {
+        rate: '0%',
+        taxName: '0% Export Non EU',
+        taxToCopy: '0% Export Non EU',
+        explanation: 'Services provided to customers located in the United Kingdom are not subject to VAT. The UK has been considered a non-EU country since Brexit.'
+      },
+      ch: {
+        rate: '8.1%',
+        taxName: '8.1% Sales Switzerland (CH)',
+        taxToCopy: '8.1% Sales Switzerland (CH)',
+        explanation: 'Services provided to customers in Switzerland are subject to Swiss VAT at a rate of 8.1%. Switzerland is not an EU member and applies its own tax regime.'
+      },
+      row: {
+        rate: '0%',
+        taxName: '0% Export Non EU',
+        taxToCopy: '0% Export Non EU',
+        explanation: 'Services provided to customers located outside the European Union, United Kingdom, and Switzerland are not subject to Belgian VAT.'
+      },
+      eu_b2b_valid: (countryName) => ({
+        rate: '0%',
+        taxName: '0% EU Services',
+        taxToCopy: '0% EU Services',
+        explanation: `The customer in ${countryName} has a valid intra-community VAT number. The reverse charge mechanism applies: VAT is due by the customer in their country.`
+      }),
+      eu_b2b_invalid: (countryName, rate) => ({
+        explanation: `The VAT number is invalid. You must charge VAT at the rate applicable in the customer's country (${countryName}: ${rate}%). The OSS (One-Stop-Shop) regime applies.`
+      }),
+      eu_b2b_invalid_reunion: {
+        rate: '0%',
+        taxName: '0% Export Non EU',
+        taxToCopy: '0% Export Non EU',
+        explanation: 'Réunion is an overseas territory. Services provided are not subject to European VAT.'
+      },
+      eu_b2c: (countryName, rate) => ({
+        explanation: `The customer is a private individual in ${countryName}. VAT is due in the customer's country via the OSS (One-Stop-Shop) regime at a rate of ${rate}%.`
+      }),
+      eu_b2c_reunion: {
+        rate: '0%',
+        taxName: '0% Export Non EU',
+        taxToCopy: '0% Export Non EU',
+        explanation: 'Réunion is an overseas territory. Services provided are not subject to European VAT.'
+      }
+    }
+  }
+};
+ 
 const EU_VAT_RATES = {
   DE: { name: 'Allemagne', nameEn: 'Germany', rate: 19 },
   AT: { name: 'Autriche', nameEn: 'Austria', rate: 20 },
@@ -636,7 +858,7 @@ const EU_VAT_RATES = {
   CY: { name: 'Chypre', nameEn: 'Cyprus', rate: 19 },
   DK: { name: 'Danemark', nameEn: 'Denmark', rate: 25 },
   ES: { name: 'Espagne', nameEn: 'Spain', rate: 21 },
-  EE: { name: 'Estonie', nameEn: 'Estonia', rate: 22, taxLabel: 'VAT for EU Services to Estonia' },
+  EE: { name: 'Estonie', nameEn: 'Estonia', rate: 22 },
   FI: { name: 'Finlande', nameEn: 'Finland', rate: 25.5 },
   FR: { name: 'France', nameEn: 'France', rate: 20 },
   GR: { name: 'Grèce', nameEn: 'Greece', rate: 24 },
@@ -658,10 +880,57 @@ const EU_VAT_RATES = {
   SE: { name: 'Suède', nameEn: 'Sweden', rate: 25 },
 };
  
+let currentLang = 'fr';
 let state = { location: null, euCountry: '', status: null, vatResult: null };
+let lastScenario = null;
+ 
+function t(key) {
+  return TRANSLATIONS[currentLang][key] || TRANSLATIONS['fr'][key] || key;
+}
+ 
+function setLang(lang) {
+  currentLang = lang;
+  document.documentElement.lang = lang;
+ 
+  // Update active button
+  document.getElementById('lang-fr').classList.toggle('active', lang === 'fr');
+  document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+ 
+  // Update all static UI text
+  document.title = t('pageTitle');
+  document.getElementById('header-title').textContent = t('headerTitle');
+  document.getElementById('card-header-loc').textContent = t('cardHeaderLoc');
+  document.getElementById('label-where').textContent = t('labelWhere');
+  document.getElementById('loc-be-label').textContent = t('locBeLabel');
+  document.getElementById('loc-eu-label').textContent = t('locEuLabel');
+  document.getElementById('loc-eu-sub').textContent = t('locEuSub');
+  document.getElementById('loc-uk-label').textContent = t('locUkLabel');
+  document.getElementById('loc-ch-label').textContent = t('locChLabel');
+  document.getElementById('loc-row-label').textContent = t('locRowLabel');
+  document.getElementById('label-eu-country').textContent = t('labelEuCountry');
+  document.getElementById('select-placeholder').textContent = t('selectPlaceholder');
+  document.getElementById('label-vat-status').textContent = t('labelVatStatus');
+  document.getElementById('b2b-label').textContent = t('b2bLabel');
+  document.getElementById('b2b-sub').textContent = t('b2bSub');
+  document.getElementById('b2c-label').textContent = t('b2cLabel');
+  document.getElementById('b2c-sub').textContent = t('b2cSub');
+  document.getElementById('vat-verify-text').innerHTML = t('vatVerifyText');
+  document.getElementById('vies-link').textContent = t('viesLink');
+  document.getElementById('label-vat-check').textContent = t('labelVatCheck');
+  document.getElementById('btn-vat-valid').textContent = t('btnVatValid');
+  document.getElementById('btn-vat-invalid').textContent = t('btnVatInvalid');
+  document.getElementById('result-title').textContent = t('resultTitle');
+  document.getElementById('placeholder-text').innerHTML = t('placeholderText');
+ 
+  // Re-render result panel if a result is showing
+  if (lastScenario) {
+    showResult(lastScenario);
+  }
+}
  
 function selectLocation(loc) {
   state = { location: loc, euCountry: '', status: null, vatResult: null };
+  lastScenario = null;
   document.querySelectorAll('.loc-btn').forEach(b => b.classList.remove('active'));
   document.querySelector(`.loc-btn[data-loc="${loc}"]`).classList.add('active');
  
@@ -683,11 +952,11 @@ function onEuCountryChange() {
   state.euCountry = country;
   state.status = null;
   state.vatResult = null;
+  lastScenario = null;
   document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('vat-verify-section').style.display = 'none';
   document.querySelectorAll('.vat-btn').forEach(b => b.classList.remove('active'));
  
-  // If export territory (e.g. Réunion), skip B2B/B2C and show result directly
   if (country && EU_VAT_RATES[country] && EU_VAT_RATES[country].isExport) {
     showResult('eu_b2c');
   } else {
@@ -698,6 +967,7 @@ function onEuCountryChange() {
 function selectStatus(s) {
   state.status = s;
   state.vatResult = null;
+  lastScenario = null;
   document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
   document.querySelector(`.status-btn[data-status="${s}"]`).classList.add('active');
   document.querySelectorAll('.vat-btn').forEach(b => b.classList.remove('active'));
@@ -722,83 +992,70 @@ function selectVatResult(r) {
 }
  
 function clearResult() {
+  lastScenario = null;
   const card = document.getElementById('result-card');
   card.classList.remove('has-result');
   document.getElementById('result-icon').textContent = 'ℹ️';
-  document.getElementById('result-title').textContent = 'Régime applicable';
+  document.getElementById('result-title').textContent = t('resultTitle');
   document.getElementById('placeholder').style.display = 'block';
   document.getElementById('result-content').style.display = 'none';
 }
  
 function showResult(scenario) {
+  lastScenario = scenario;
   let rate, taxName, explanation, taxToCopy;
   const country = state.euCountry;
   const countryInfo = EU_VAT_RATES[country];
-  const countryName = countryInfo ? countryInfo.name : '';
-  const countryNameEn = countryInfo ? countryInfo.nameEn : '';
+  const countryName = currentLang === 'en'
+    ? (countryInfo ? countryInfo.nameEn : '')
+    : (countryInfo ? countryInfo.name : '');
+  const T = TRANSLATIONS[currentLang].scenarios;
  
   switch(scenario) {
     case 'be':
-      rate = '21%';
-      taxName = '21% Services';
-      taxToCopy = '21% Services';
-      explanation = 'Toutes les ventes de services à des clients belges (B2B ou B2C) sont soumises à la TVA belge standard.';
+      ({ rate, taxName, taxToCopy, explanation } = T.be);
       break;
  
     case 'uk':
-      rate = '0%';
-      taxName = '0% Export Non EU';
-      taxToCopy = '0% Export Non EU';
-      explanation = 'Les services fournis à des clients situés au Royaume-Uni ne sont pas soumis à la TVA. Le Royaume-Uni est considéré comme un pays hors UE depuis le Brexit.';
+      ({ rate, taxName, taxToCopy, explanation } = T.uk);
       break;
  
     case 'ch':
-      rate = '8.1%';
-      taxName = '8.1% Sales Switzerland (CH)';
-      taxToCopy = '8.1% Sales Switzerland (CH)';
-      explanation = 'Les services fournis à des clients situés en Suisse sont soumis à la TVA suisse au taux de 8.1%. La Suisse n\'est pas membre de l\'UE et applique son propre régime fiscal.';
+      ({ rate, taxName, taxToCopy, explanation } = T.ch);
       break;
  
     case 'row':
-      rate = '0%';
-      taxName = '0% Export Non EU';
-      taxToCopy = '0% Export Non EU';
-      explanation = 'Les services fournis à des clients situés en dehors de l\'Union Européenne, du Royaume-Uni et de la Suisse ne sont pas soumis à la TVA belge.';
+      ({ rate, taxName, taxToCopy, explanation } = T.row);
       break;
  
-    case 'eu_b2b_valid':
-      rate = '0%';
-      taxName = '0% EU Services';
-      taxToCopy = '0% EU Services';
-      explanation = `Le client en ${countryName} dispose d'un numéro de TVA intracommunautaire valide. L'autoliquidation (reverse charge) s'applique : la TVA est due par le client dans son pays.`;
+    case 'eu_b2b_valid': {
+      const d = T.eu_b2b_valid(countryName);
+      rate = d.rate; taxName = d.taxName; taxToCopy = d.taxToCopy; explanation = d.explanation;
       break;
+    }
  
     case 'eu_b2b_invalid':
       if (countryInfo && countryInfo.isExport) {
-        rate = '0%';
-        taxName = '0% Export Non EU';
-        taxToCopy = '0% Export Non EU';
-        explanation = `La Réunion est un territoire d'outre-mer. Les services fournis ne sont pas soumis à la TVA européenne.`;
+        ({ rate, taxName, taxToCopy, explanation } = T.eu_b2b_invalid_reunion);
       } else {
         rate = countryInfo ? countryInfo.rate + '%' : '—';
-        taxName = countryInfo && countryInfo.taxLabel ? countryInfo.taxLabel : `VAT for EU Services to ${countryNameEn}`;
+        taxName = countryInfo && countryInfo.taxLabel ? countryInfo.taxLabel : `VAT for EU Services to ${countryInfo ? countryInfo.nameEn : ''}`;
         taxToCopy = taxName;
-        explanation = `Le numéro de TVA est invalide. Vous devez facturer la TVA au taux en vigueur dans le pays du client (${countryName} : ${countryInfo ? countryInfo.rate : '—'}%). Le régime OSS (One-Stop-Shop) s'applique.`;
+        const d = T.eu_b2b_invalid(countryName, countryInfo ? countryInfo.rate + '%' : '—');
+        explanation = d.explanation;
       }
       break;
  
     case 'eu_b2c':
       if (!country) return clearResult();
       if (countryInfo && countryInfo.isExport) {
-        rate = '0%';
-        taxName = '0% Export Non EU';
-        taxToCopy = '0% Export Non EU';
-        explanation = `La Réunion est un territoire d'outre-mer. Les services fournis ne sont pas soumis à la TVA européenne.`;
+        ({ rate, taxName, taxToCopy, explanation } = T.eu_b2c_reunion);
       } else {
         rate = countryInfo ? countryInfo.rate + '%' : '—';
-        taxName = countryInfo && countryInfo.taxLabel ? countryInfo.taxLabel : `VAT for EU Services to ${countryNameEn}`;
+        taxName = countryInfo && countryInfo.taxLabel ? countryInfo.taxLabel : `VAT for EU Services to ${countryInfo ? countryInfo.nameEn : ''}`;
         taxToCopy = taxName;
-        explanation = `Le client est un particulier en ${countryName}. La TVA est due dans le pays du client via le régime OSS (One-Stop-Shop) au taux de ${countryInfo ? countryInfo.rate : '—'}%.`;
+        const d = T.eu_b2c(countryName, countryInfo ? countryInfo.rate + '%' : '—');
+        explanation = d.explanation;
       }
       break;
  
@@ -809,13 +1066,13 @@ function showResult(scenario) {
   const card = document.getElementById('result-card');
   card.classList.add('has-result');
   document.getElementById('result-icon').textContent = '✅';
-  document.getElementById('result-title').textContent = 'Régime applicable';
+  document.getElementById('result-title').textContent = t('resultTitle');
   document.getElementById('placeholder').style.display = 'none';
  
   const content = document.getElementById('result-content');
   content.style.display = 'block';
   content.innerHTML = `
-    <div class="tax-label">Taxe à sélectionner</div>
+    <div class="tax-label">${t('taxLabelText')}</div>
     <div class="tax-rate">
       <span class="rate">${rate}</span>
       <span class="name">${taxName}</span>
@@ -824,19 +1081,18 @@ function showResult(scenario) {
     <div class="tax-action">
       <span class="action-icon">ℹ️</span>
       <div>
-        <div class="action-label">Action requise sur le devis/facture :</div>
+        <div class="action-label">${t('actionLabel')}</div>
       </div>
     </div>
     <button class="tax-copy-btn" onclick="copyTax(this, '${taxToCopy.replace(/'/g, "\\'")}')">
       <span class="copy-text">${taxToCopy}</span>
-      <span class="copy-icon">📋 Copier</span>
+      <span class="copy-icon">${t('copyBtnText')}</span>
     </button>
-    <button class="reset-btn" onclick="resetAll()">Nouvelle simulation</button>
+    <button class="reset-btn" onclick="resetAll()">${t('newSimulation')}</button>
   `;
 }
  
 function copyTax(btn, text) {
-  // Fallback method that works everywhere
   const textarea = document.createElement('textarea');
   textarea.value = text;
   textarea.style.position = 'fixed';
@@ -846,22 +1102,22 @@ function copyTax(btn, text) {
   try {
     document.execCommand('copy');
     btn.classList.add('copied');
-    btn.querySelector('.copy-text').textContent = '✅ Copié !';
+    btn.querySelector('.copy-text').textContent = t('copiedText');
     btn.querySelector('.copy-icon').textContent = '';
     setTimeout(() => {
       btn.classList.remove('copied');
       btn.querySelector('.copy-text').textContent = text;
-      btn.querySelector('.copy-icon').textContent = '📋 Copier';
+      btn.querySelector('.copy-icon').textContent = t('copyBtnText');
     }, 2000);
   } catch(e) {
-    // Last resort: prompt user
-    window.prompt('Copiez cette taxe :', text);
+    window.prompt(currentLang === 'fr' ? 'Copiez cette taxe :' : 'Copy this tax:', text);
   }
   document.body.removeChild(textarea);
 }
  
 function resetAll() {
   state = { location: null, euCountry: '', status: null, vatResult: null };
+  lastScenario = null;
   document.querySelectorAll('.loc-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.vat-btn').forEach(b => b.classList.remove('active'));
@@ -883,7 +1139,6 @@ const stars = Array.from({length:180}, () => ({x:Math.random(),y:Math.random(),s
 function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
 resize(); window.addEventListener('resize', resize);
  
-// Load country borders
 fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
   .then(r => r.json()).then(topo => { geoData = decodeTopo(topo); animate(); })
   .catch(() => animate());
@@ -904,13 +1159,12 @@ function decodeTopo(topo) {
   return feats;
 }
  
-// 3D projection — oblique view from SW, like the ISS photo
 function project(lon, lat, t) {
   const lookLat = (44 + Math.sin(t*0.00012)*0.8) * Math.PI/180;
   const lookLon = (8 + Math.cos(t*0.0001)*1.0) * Math.PI/180;
   const camAz = (215 + Math.sin(t*0.00008)*2) * Math.PI/180;
   const camEl = (32 + Math.sin(t*0.00007)*1.5) * Math.PI/180;
-  const CD = 1.25; // camera distance from center (in sphere radii)
+  const CD = 1.25;
  
   const phi = lat*Math.PI/180, lam = lon*Math.PI/180;
   const px = Math.cos(phi)*Math.cos(lam), py = Math.cos(phi)*Math.sin(lam), pz = Math.sin(phi);
@@ -944,7 +1198,6 @@ function project(lon, lat, t) {
  
 const EU = new Set(['BE','DE','FR','IT','ES','PT','NL','LU','CH','AT','DK','SE','FI','IE','PL','CZ','SK','HU','RO','BG','GR','HR','SI','EE','LV','LT','CY','MT','GB','NO']);
  
-// City lights
 const C = [
   {a:51.51,o:-0.13,s:6,c:'GB'},{a:48.86,o:2.35,s:6,c:'FR'},{a:52.52,o:13.41,s:5,c:'DE'},
   {a:40.42,o:-3.70,s:5,c:'ES'},{a:41.90,o:12.50,s:5,c:'IT'},{a:45.46,o:9.19,s:5,c:'IT'},
@@ -965,7 +1218,6 @@ const C = [
   {a:50.06,o:19.94,s:2.5,c:'PL'},{a:42.70,o:23.32,s:3,c:'BG'},{a:45.81,o:15.98,s:2.5,c:'HR'},
   {a:46.06,o:14.51,s:2,c:'SI'},{a:59.44,o:24.75,s:2,c:'EE'},{a:56.95,o:24.11,s:2,c:'LV'},
   {a:54.69,o:25.28,s:2,c:'LT'},{a:57.71,o:11.97,s:2,c:'SE'},
-  // Non-EU dim
   {a:59.91,o:10.75,s:3,c:null},{a:55.76,o:37.62,s:5,c:null},{a:41.01,o:28.98,s:5,c:null},
   {a:50.45,o:30.52,s:4,c:null},{a:36.75,o:3.06,s:2.5,c:null},{a:33.57,o:-7.59,s:3,c:null},
   {a:30.04,o:31.24,s:4,c:null},
@@ -973,15 +1225,12 @@ const C = [
  
 function drawFrame(t) {
   ctx.clearRect(0,0,W,H);
- 
-  // Space
   ctx.fillStyle='#000005'; ctx.fillRect(0,0,W,H);
   stars.forEach(s => {
     ctx.fillStyle=`rgba(255,255,255,${s.b+Math.sin(t*s.sp)*0.1})`;
     ctx.beginPath(); ctx.arc(s.x*W,s.y*H,s.s,0,Math.PI*2); ctx.fill();
   });
  
-  // Horizon limb → compute earth shape
   const lLat=(44+Math.sin(t*0.00012)*0.8)*Math.PI/180, lLon=(8+Math.cos(t*0.0001)*1.0)*Math.PI/180;
   const limb=[];
   for(let a=-180;a<=180;a+=2){
@@ -996,13 +1245,11 @@ function drawFrame(t) {
   }
  
   if(limb.length>10){
-    // Upper envelope for earth shape
     const bk={};
     limb.forEach(p=>{const b=Math.floor(p.x/8)*8;if(!(b in bk)||p.y<bk[b])bk[b]=p.y;});
     const bxs=Object.keys(bk).map(Number).sort((a,b)=>a-b);
  
     if(bxs.length>2){
-      // Ocean fill
       ctx.save();ctx.beginPath();
       ctx.moveTo(bxs[0]-200,H+200);
       bxs.forEach(b=>ctx.lineTo(b,bk[b]));
@@ -1011,7 +1258,6 @@ function drawFrame(t) {
       og.addColorStop(0,'#06101f');og.addColorStop(0.5,'#050c1a');og.addColorStop(1,'#030815');
       ctx.fillStyle=og;ctx.fill();ctx.restore();
  
-      // Atmosphere glow
       for(let i=0;i<18;i++){
         ctx.beginPath();const off=-2-i*3;
         ctx.moveTo(bxs[0]-80,bk[bxs[0]]+off);
@@ -1023,7 +1269,6 @@ function drawFrame(t) {
         ctx.stroke();
       }
  
-      // Clip earth
       ctx.save();ctx.beginPath();
       ctx.moveTo(bxs[0]-200,H+200);
       bxs.forEach(b=>ctx.lineTo(b,bk[b]+1));
@@ -1031,7 +1276,6 @@ function drawFrame(t) {
     }
   }
  
-  // Countries
   if(geoData) geoData.forEach(f=>{
     const isHL=highlightedCountry&&f.iso===highlightedCountry;
     const isEU=f.iso&&EU.has(f.iso);
@@ -1057,7 +1301,6 @@ function drawFrame(t) {
     });
   });
  
-  // City lights
   C.forEach(c=>{
     const p=project(c.o,c.a,t);if(!p)return;
     const isHL=highlightedCountry&&c.c===highlightedCountry;
@@ -1102,3 +1345,4 @@ onEuCountryChange = function() {
  
 </body>
 </html>
+ 
