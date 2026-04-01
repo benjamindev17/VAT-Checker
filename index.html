@@ -3,1346 +3,1624 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Assistant Fiscalité & TVA</title>
+<title>CCM Toolbox</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --primary: #714B67;
-    --primary-dark: #5B3D54;
-    --primary-light: #8F6B82;
-    --teal: #00A09D;
-    --teal-dark: #008784;
-    --teal-light: #E6F5F5;
-    --bg: #F1F0EF;
-    --white: #FFFFFF;
-    --text: #2C2C33;
-    --text-muted: #6B7280;
-    --border: #DEE2E6;
-    --border-active: #00A09D;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-    --shadow-lg: 0 8px 24px rgba(0,0,0,0.1);
-    --radius: 10px;
-    --radius-lg: 14px;
-  }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --primary: #714B67; --teal: #00A09D; --teal-dark: #008784;
+  --radius: 10px; --radius-lg: 14px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06); --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+}
+body { font-family: 'Noto Sans', sans-serif; background: #0d0a1a; color: #fff; min-height: 100vh; overflow-x: hidden; }
  
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+/* GLOBE */
+.space-bg { position: fixed; top:0; left:0; width:100%; height:100%; z-index:0; background:#0d0a1a; }
+.space-bg canvas { position:absolute; top:0; left:0; width:100%; height:100%; }
  
-  body {
-    font-family: 'Noto Sans', sans-serif;
-    background: #000;
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+/* LAYOUT */
+.content-layer { position:relative; z-index:1; min-height:100vh; display:flex; flex-direction:column; }
  
-  /* Canvas Earth background */
-  .space-bg {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    z-index: 0;
-    overflow: hidden;
-    background: #000;
-  }
-  .space-bg canvas {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-  }
+/* HEADER */
+.header { background:rgba(113,75,103,0.95); backdrop-filter:blur(10px); color:white; padding:14px 28px; display:flex; align-items:center; gap:12px; font-size:17px; font-weight:600; box-shadow:0 2px 8px rgba(113,75,103,0.3); flex-shrink:0; }
+.header-icon { width:34px; height:34px; background:rgba(255,255,255,0.15); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:18px; }
+.header-title { flex:1; }
+.header-back { display:none; align-items:center; gap:8px; background:rgba(255,255,255,0.12); border:1.5px solid rgba(255,255,255,0.25); border-radius:8px; padding:6px 14px; color:#fff; font-size:13px; font-weight:600; cursor:pointer; transition:all 0.2s; margin-right:4px; font-family:inherit; }
+.header-back:hover { background:rgba(255,255,255,0.22); }
+.header-back.visible { display:flex; }
+.lang-switcher { display:flex; align-items:center; background:rgba(255,255,255,0.12); border:1.5px solid rgba(255,255,255,0.25); border-radius:999px; padding:4px 6px; gap:2px; }
+.lang-btn { display:flex; align-items:center; gap:6px; padding:5px 12px; border-radius:999px; border:none; background:transparent; color:rgba(255,255,255,0.7); font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; transition:all 0.2s; }
+.lang-btn:hover { color:white; background:rgba(255,255,255,0.12); }
+.lang-btn.active { background:rgba(255,255,255,0.22); color:white; }
+.lang-flag { font-size:16px; }
  
-  /* Content layer */
-  .content-layer {
-    position: relative;
-    z-index: 1;
-  }
+/* HOME */
+.home-body { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 24px 60px; gap:32px; }
+.home-hero { text-align:center; }
+.home-hero-title { font-size:26px; font-weight:700; color:#fff; text-shadow:0 2px 8px rgba(0,0,0,0.5); margin-bottom:8px; }
+.home-hero-sub { font-size:14px; color:rgba(255,255,255,0.6); }
+.tool-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; width:100%; max-width:740px; }
+.tool-btn {
+  background: rgba(255,255,255,0.13);
+  border: 1.5px solid rgba(255,255,255,0.22);
+  border-radius: 16px;
+  padding: 28px 16px 22px;
+  cursor: pointer;
+  text-align: center;
+  display: flex; flex-direction:column; align-items:center; gap:12px;
+  transition: all 0.25s;
+  backdrop-filter: blur(12px);
+  position: relative;
+  font-family: inherit;
+  box-shadow: 0 0 18px rgba(113,75,103,0.35), 0 0 6px rgba(143,107,130,0.2);
+  animation: tool-glow 3s ease-in-out infinite;
+}
+@keyframes tool-glow {
+  0%   { box-shadow: 0 0 12px rgba(113,75,103,0.3), 0 0 4px rgba(143,107,130,0.15); }
+  50%  { box-shadow: 0 0 28px rgba(113,75,103,0.55), 0 0 12px rgba(143,107,130,0.35), 0 0 40px rgba(113,75,103,0.18); }
+  100% { box-shadow: 0 0 12px rgba(113,75,103,0.3), 0 0 4px rgba(143,107,130,0.15); }
+}
+.tool-btn:nth-child(2) { animation-delay: 0.4s; }
+.tool-btn:nth-child(3) { animation-delay: 0.8s; }
+.tool-btn:nth-child(4) { animation-delay: 1.2s; }
+.tool-btn:nth-child(5) { animation-delay: 1.6s; }
+.tool-btn:nth-child(6) { animation-delay: 2.0s; }
+.tool-btn:nth-child(7) { animation-delay: 2.4s; }
+.tool-btn:nth-child(8) { animation-delay: 2.8s; }
+.tool-btn:nth-child(9) { animation-delay: 3.2s; }
+.tool-btn:hover { border-color:rgba(0,200,160,0.6); background:rgba(0,180,140,0.18); transform:translateY(-3px); box-shadow:0 8px 28px rgba(0,180,140,0.3), 0 0 20px rgba(0,200,160,0.2); animation:none; }
+.tool-btn.empty { cursor:default; opacity:0.45; animation:none; box-shadow:none; }
+.tool-btn.empty:hover { transform:none; border-color:rgba(255,255,255,0.22); background:rgba(255,255,255,0.13); box-shadow:none; }
+.tool-icon { font-size:32px; line-height:1; }
+.tool-label { font-size:13.5px; font-weight:600; color:#fff; text-shadow:0 1px 4px rgba(0,0,0,0.5); line-height:1.3; }
+.tool-sub { font-size:11px; color:rgba(255,255,255,0.5); }
+.tool-badge { position:absolute; top:10px; right:10px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); border-radius:6px; padding:2px 7px; font-size:9.5px; font-weight:700; color:rgba(255,255,255,0.5); letter-spacing:0.8px; text-transform:uppercase; }
  
-  /* Glassmorphism — light white semi-transparent panels */
-  .card, .result-card {
-    background: rgba(255, 255, 255, 0.25) !important;
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    border-color: rgba(255,255,255,0.35) !important;
-  }
+/* TOOL PANELS — identical layout for ALL tools */
+.tool-main { max-width:1080px; width:100%; margin:32px auto; padding:0 24px; display:grid; grid-template-columns:1.1fr 0.9fr; gap:24px; align-items:start; box-sizing:border-box; }
+@media(max-width:768px){ .tool-main { grid-template-columns:1fr; } }
+/* Hosting uses same width but stretched columns */
+.hosting-layout { max-width:1080px; width:100%; margin:32px auto 0; padding:0 24px; display:grid; grid-template-columns:1.1fr 0.9fr; gap:24px; align-items:stretch; box-sizing:border-box; }
+@media(max-width:768px){ .hosting-layout { grid-template-columns:1fr; } }
+.hosting-left { display:flex; flex-direction:column; }
+.hosting-right { display:flex; flex-direction:column; }
+.hosting-right .result-card { flex:1; display:flex; flex-direction:column; }
+.hosting-right .result-body { flex:1; overflow-y:auto; max-height:calc(100vh - 160px); }
+.card, .result-card { background:rgba(255,255,255,0.25) !important; backdrop-filter:blur(18px); border:1px solid rgba(255,255,255,0.35) !important; border-radius:var(--radius-lg); overflow:hidden; }
+.card-header { padding:16px 22px; font-weight:600; font-size:15px; display:flex; align-items:center; gap:10px; border-bottom:1px solid rgba(255,255,255,0.1); color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.4); background:rgba(255,255,255,0.06); }
+.card-header .icon { width:22px; height:22px; color:rgba(255,255,255,0.55); }
+.card-body { padding:22px; }
+.section-label { font-weight:600; font-size:13.5px; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.4); margin-bottom:14px; }
+.conditional { margin-top:22px; animation:fadeSlide 0.3s ease; }
+@keyframes fadeSlide { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+.result-card { transition:all 0.3s; }
+.result-card.has-result { border-color:#00C896 !important; box-shadow:0 0 0 1.5px #00C896, 0 8px 32px rgba(0,200,150,0.15); }
+.result-header { padding:16px 22px; font-weight:600; font-size:15px; display:flex; align-items:center; gap:10px; border-bottom:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.92); background:rgba(255,255,255,0.06); transition:all 0.3s; }
+.result-card.has-result .result-header { background:rgba(0,180,140,0.18); color:#00E8B0; }
+.result-body { padding:22px; }
+.placeholder { text-align:center; padding:40px 20px; color:rgba(255,255,255,0.45); }
+.placeholder .ph-icon { width:48px; height:48px; background:rgba(255,255,255,0.06); border-radius:50%; display:inline-flex; align-items:center; justify-content:center; margin-bottom:14px; font-size:22px; }
+.placeholder p { font-size:13.5px; line-height:1.5; }
+.result-content { animation:fadeSlide 0.35s ease; }
  
-  /* Header */
-  .header {
-    background: rgba(113, 75, 103, 0.95);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    color: white;
-    padding: 14px 28px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 17px;
-    font-weight: 600;
-    letter-spacing: 0.2px;
-    box-shadow: 0 2px 8px rgba(113,75,103,0.3);
-  }
-  .header-icon {
-    width: 34px; height: 34px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px;
-  }
-  .header-title { flex: 1; }
+/* SHARED BUTTON STYLE */
+.type-btn { background:rgba(255,255,255,0.55); border:1.5px solid rgba(255,255,255,0.7); border-radius:var(--radius); padding:16px 10px 14px; cursor:pointer; text-align:center; transition:all 0.2s; display:flex; flex-direction:column; align-items:center; gap:8px; font-family:inherit; }
+.type-btn:hover { border-color:rgba(0,200,160,0.6); background:rgba(0,180,140,0.15); }
+.type-btn.active { border-color:#00C896; background:rgba(0,180,140,0.22); box-shadow:0 0 0 1.5px #00C896; }
+.type-btn .t-icon { font-size:22px; color:rgba(255,255,255,0.5); }
+.type-btn.active .t-icon { color:#00E8B0; }
+.type-btn .t-label { font-size:13px; font-weight:600; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.4); }
+.type-btn.active .t-label { color:#00E8B0; text-shadow:none; }
+.type-btn .t-sub { font-size:11px; color:rgba(255,255,255,0.75); }
+.type-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
  
-  /* Language switcher */
-  .lang-switcher {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(255,255,255,0.12);
-    border: 1.5px solid rgba(255,255,255,0.25);
-    border-radius: 999px;
-    padding: 4px 6px;
-    gap: 2px;
-  }
-  .lang-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 5px 12px;
-    border-radius: 999px;
-    border: none;
-    background: transparent;
-    color: rgba(255,255,255,0.7);
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    white-space: nowrap;
-    letter-spacing: 0.3px;
-  }
-  .lang-btn:hover {
-    color: white;
-    background: rgba(255,255,255,0.12);
-  }
-  .lang-btn.active {
-    background: rgba(255,255,255,0.22);
-    color: white;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-  }
-  .lang-flag {
-    font-size: 16px;
-    line-height: 1;
-  }
+/* VAT */
+.loc-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:6px; }
+.loc-grid.row2 { margin-top:10px; }
+.loc-btn { background:rgba(255,255,255,0.55); border:1.5px solid rgba(255,255,255,0.7); border-radius:var(--radius); padding:18px 10px 16px; cursor:pointer; text-align:center; transition:all 0.2s; display:flex; flex-direction:column; align-items:center; gap:10px; font-family:inherit; }
+.loc-btn:hover { border-color:rgba(0,200,160,0.6); background:rgba(0,180,140,0.15); transform:translateY(-1px); }
+.loc-btn.active { border-color:#00C896; background:rgba(0,180,140,0.22); box-shadow:0 0 0 1.5px #00C896; }
+.loc-btn .loc-icon { font-size:24px; color:rgba(255,255,255,0.6); }
+.loc-btn.active .loc-icon, .loc-btn:hover .loc-icon { color:#00E8B0; }
+.loc-btn .loc-label { font-size:13px; font-weight:600; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.4); line-height:1.3; }
+.loc-btn.active .loc-label { color:#00E8B0; text-shadow:none; }
+.loc-btn .loc-sub { font-size:11px; color:rgba(255,255,255,0.75); font-weight:400; }
+.select-wrap { position:relative; margin-bottom:18px; }
+.select-wrap select { width:100%; padding:11px 38px 11px 14px; border:1.5px solid rgba(255,255,255,0.4); border-radius:8px; font-family:inherit; font-size:13.5px; color:#2C2C33; background:rgba(255,255,255,0.55); appearance:none; cursor:pointer; }
+.select-wrap select:focus { outline:none; border-color:#00C896; }
+.select-wrap::after { content:'▾'; position:absolute; right:14px; top:50%; transform:translateY(-50%); color:#6B7280; pointer-events:none; }
+.status-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.status-btn { background:rgba(255,255,255,0.55); border:1.5px solid rgba(255,255,255,0.7); border-radius:var(--radius); padding:16px 10px 14px; cursor:pointer; text-align:center; transition:all 0.2s; display:flex; flex-direction:column; align-items:center; gap:8px; font-family:inherit; }
+.status-btn:hover { border-color:rgba(0,200,160,0.6); background:rgba(0,180,140,0.15); }
+.status-btn.active { border-color:#00C896; background:rgba(0,180,140,0.22); box-shadow:0 0 0 1.5px #00C896; }
+.status-btn .s-icon { font-size:22px; color:rgba(255,255,255,0.5); }
+.status-btn.active .s-icon { color:#00E8B0; }
+.status-btn .s-label { font-size:13px; font-weight:600; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.4); }
+.status-btn.active .s-label { color:#00E8B0; text-shadow:none; }
+.status-btn .s-sub { font-size:11px; color:rgba(255,255,255,0.75); }
+.status-btn.active .s-sub { color:rgba(0,232,176,0.7); text-shadow:none; }
+.vat-verify { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:8px; padding:14px 16px; margin-top:16px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+.vat-verify p { font-size:12.5px; color:rgba(255,255,255,0.6); line-height:1.4; }
+.vat-verify a { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border:1.5px solid rgba(255,255,255,0.2); border-radius:8px; background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.85); text-decoration:none; font-size:12.5px; font-weight:500; cursor:pointer; transition:all 0.15s; white-space:nowrap; }
+.vat-verify a:hover { border-color:#00C896; color:#00E8B0; background:rgba(0,180,140,0.15); }
+.vat-btns { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; }
+.vat-btn { padding:10px 14px; border-radius:8px; border:1.5px solid rgba(255,255,255,0.7); background:rgba(255,255,255,0.55); cursor:pointer; font-family:inherit; font-size:13px; font-weight:500; color:rgba(255,255,255,0.85); display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.2s; }
+.vat-btn.valid.active { border-color:#00C896; background:rgba(0,180,140,0.22); color:#00E8B0; box-shadow:0 0 0 1.5px #00C896; }
+.vat-btn.invalid.active { border-color:#E8553D; background:rgba(232,85,61,0.18); color:#ff8070; box-shadow:0 0 0 1.5px #E8553D; }
+.tax-label { font-size:12.5px; color:rgba(255,255,255,0.5); margin-bottom:6px; }
+.tax-rate { display:flex; align-items:baseline; gap:10px; margin-bottom:18px; }
+.tax-rate .rate { font-size:36px; font-weight:700; color:#fff; line-height:1; }
+.tax-rate .name { font-size:14px; font-weight:500; color:#00E8B0; background:rgba(0,180,140,0.18); padding:3px 10px; border-radius:6px; border:1px solid rgba(0,200,150,0.3); }
+.tax-explanation { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:14px 16px; font-size:13px; line-height:1.55; color:rgba(255,255,255,0.8); margin-bottom:18px; }
+.tax-action { display:flex; align-items:center; gap:8px; margin-bottom:14px; font-size:12.5px; font-weight:600; color:rgba(255,255,255,0.75); }
+.tax-copy-btn { display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%; background:rgba(255,255,255,0.07); border:1.5px solid rgba(255,255,255,0.18); border-radius:8px; padding:12px 16px; font-family:inherit; font-size:13.5px; font-weight:600; color:rgba(255,255,255,0.88); cursor:pointer; transition:all 0.2s; }
+.tax-copy-btn:hover { border-color:#00C896; background:rgba(0,180,140,0.18); color:#00E8B0; }
+.tax-copy-btn.copied { border-color:#00C896; background:rgba(0,180,140,0.22); color:#00E8B0; }
+.reset-btn { width:100%; padding:13px; background:rgba(0,180,140,0.25); border:1.5px solid #00C896; color:#00E8B0; border-radius:8px; font-family:inherit; font-size:14px; font-weight:600; cursor:pointer; transition:all 0.2s; margin-top:6px; }
+.reset-btn:hover { background:rgba(0,180,140,0.4); transform:translateY(-1px); }
  
-  /* Main layout */
-  .main {
-    max-width: 1080px;
-    margin: 32px auto;
-    padding: 0 24px;
-    display: grid;
-    grid-template-columns: 1.1fr 0.9fr;
-    gap: 24px;
-    align-items: start;
-  }
-  @media (max-width: 768px) {
-    .main { grid-template-columns: 1fr; }
-  }
+/* IOT */
+.iot-sub-notice { display:flex; align-items:flex-start; gap:12px; background:rgba(255,180,0,0.12); border:1.5px solid rgba(255,180,0,0.35); border-radius:10px; padding:14px 16px; margin-top:18px; }
+.iot-sub-notice-icon { font-size:22px; flex-shrink:0; }
+.iot-sub-notice-title { font-size:13px; font-weight:700; color:#FFD166; margin-bottom:5px; }
+.iot-sub-notice-text { font-size:12.5px; color:rgba(255,220,100,0.85); line-height:1.5; }
+.iot-sub-notice-text strong { color:#FFD166; }
+.iot-need-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:4px; }
+.iot-need-btn { background:rgba(255,255,255,0.55); border:1.5px solid rgba(255,255,255,0.7); border-radius:var(--radius); padding:14px 10px 12px; cursor:pointer; text-align:center; display:flex; flex-direction:column; align-items:center; gap:8px; transition:all 0.2s; font-family:inherit; }
+.iot-need-btn:hover { border-color:rgba(0,200,160,0.6); background:rgba(0,180,140,0.15); transform:translateY(-1px); }
+.iot-need-btn.active { border-color:#00C896; background:rgba(0,180,140,0.22); box-shadow:0 0 0 1.5px #00C896; }
+.iot-need-icon { font-size:20px; }
+.iot-need-label { font-size:12px; font-weight:600; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.4); line-height:1.3; }
+.iot-need-btn.active .iot-need-label { color:#00E8B0; text-shadow:none; }
+.iot-section-title { font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:rgba(255,255,255,0.4); margin-bottom:10px; margin-top:18px; }
+.iot-section-title:first-child { margin-top:0; }
+.iot-link-btn { display:flex; align-items:center; gap:10px; width:100%; padding:11px 14px; border:1.5px solid rgba(255,255,255,0.18); border-radius:8px; background:rgba(255,255,255,0.07); color:rgba(255,255,255,0.88); text-decoration:none; font-family:inherit; font-size:13px; font-weight:500; cursor:pointer; transition:all 0.18s; margin-bottom:8px; text-align:left; }
+.iot-link-btn:hover { border-color:#00C896; color:#00E8B0; background:rgba(0,180,140,0.15); }
+.iot-link-icon { font-size:16px; flex-shrink:0; }
+.iot-link-label { flex:1; line-height:1.3; }
+.iot-link-arrow { opacity:0.4; font-size:12px; flex-shrink:0; }
+.iot-link-btn:hover .iot-link-arrow { opacity:1; }
+.iot-contacts-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:4px; }
+.iot-contact-chip { display:flex; flex-direction:column; align-items:center; gap:4px; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:10px 6px; text-align:center; }
+.iot-contact-initials { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; color:#fff; }
+.iot-contact-name { font-size:11px; font-weight:600; color:rgba(255,255,255,0.85); }
+.iot-contact-role { font-size:9.5px; color:rgba(255,255,255,0.4); }
+.iot-reset-btn { width:100%; padding:11px; background:rgba(0,180,140,0.2); border:1.5px solid #00C896; color:#00E8B0; border-radius:8px; font-family:inherit; font-size:13.5px; font-weight:600; cursor:pointer; transition:all 0.2s; margin-top:16px; }
+/* HOSTING */
+.hosting-info-row { display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.08); }
+.hosting-info-row:last-of-type { border-bottom:none; }
+.hosting-info-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
+.hosting-info-label { font-size:11px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:rgba(255,255,255,0.4); margin-bottom:3px; }
+.hosting-info-value { font-size:13px; color:rgba(255,255,255,0.85); line-height:1.5; }
+.hosting-info-value strong { color:#fff; font-weight:700; }
+.hosting-info-value .tag { display:inline-block; background:rgba(0,180,140,0.2); border:1px solid rgba(0,200,150,0.35); color:#00E8B0; border-radius:5px; padding:1px 8px; font-size:11px; font-weight:600; margin-right:4px; }
+.hosting-info-value .tag-warn { background:rgba(255,180,0,0.15); border-color:rgba(255,180,0,0.35); color:#FFD166; }
+.hosting-info-value .tag-red { background:rgba(232,85,61,0.15); border-color:rgba(232,85,61,0.35); color:#ff8070; }
+.hosting-warning { display:flex; align-items:flex-start; gap:10px; background:rgba(255,180,0,0.12); border:1.5px solid rgba(255,180,0,0.35); border-radius:8px; padding:12px 14px; margin-bottom:14px; font-size:12.5px; color:rgba(255,220,100,0.9); line-height:1.5; }
+.hosting-warning strong { color:#FFD166; }
+.hosting-reset-btn { width:100%; padding:11px; background:rgba(0,180,140,0.2); border:1.5px solid #00C896; color:#00E8B0; border-radius:8px; font-family:inherit; font-size:13.5px; font-weight:600; cursor:pointer; transition:all 0.2s; margin-top:16px; }
+.hosting-reset-btn:hover { background:rgba(0,180,140,0.35); transform:translateY(-1px); }
  
-  /* Card */
-  .card {
-    background: var(--white);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-    border: 1px solid rgba(255,255,255,0.12);
-    overflow: hidden;
-    transition: box-shadow 0.2s;
-  }
-  .card-header {
-    padding: 16px 22px;
-    font-weight: 600;
-    font-size: 15px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    color: #fff;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.4);
-    background: rgba(255,255,255,0.06);
-  }
-  .card-header .icon {
-    width: 22px; height: 22px;
-    color: rgba(255,255,255,0.55);
-  }
-  .card-body { padding: 22px; }
+/* PRICING TABLE */
+.pricing-toggle { display:flex; gap:8px; margin-bottom:16px; }
+.pricing-toggle-btn { flex:1; padding:8px 12px; border-radius:8px; border:1.5px solid rgba(255,255,255,0.3); background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.7); font-family:inherit; font-size:12.5px; font-weight:600; cursor:pointer; transition:all 0.2s; text-align:center; }
+.pricing-toggle-btn.active { border-color:#00C896; background:rgba(0,180,140,0.22); color:#00E8B0; box-shadow:0 0 0 1px #00C896; }
+.pricing-table { width:100%; border-collapse:collapse; margin-bottom:16px; }
+.pricing-table th { padding:9px 12px; font-size:11px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:rgba(255,255,255,0.45); border-bottom:1px solid rgba(255,255,255,0.1); text-align:left; }
+.pricing-table td { padding:10px 12px; font-size:13px; color:rgba(255,255,255,0.88); border-bottom:1px solid rgba(255,255,255,0.07); }
+.pricing-table tr:last-child td { border-bottom:none; }
+.pricing-table .plan-name { font-weight:700; color:#fff; }
+.pricing-table .price-highlight { color:#00E8B0; font-weight:700; }
+.pricing-table .price-normal { color:rgba(255,200,100,0.9); }
+.pricing-tag-fyd { display:inline-block; background:rgba(0,180,140,0.2); border:1px solid rgba(0,200,150,0.35); color:#00E8B0; border-radius:4px; padding:1px 6px; font-size:10px; font-weight:700; margin-left:4px; }
+.pricing-tag-normal { display:inline-block; background:rgba(255,180,0,0.15); border:1px solid rgba(255,180,0,0.35); color:#FFD166; border-radius:4px; padding:1px 6px; font-size:10px; font-weight:700; margin-left:4px; }
+.pricing-formula { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:14px 16px; margin-bottom:14px; }
+.pricing-formula-title { font-size:11px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:rgba(255,255,255,0.4); margin-bottom:10px; }
+.pricing-formula-row { font-size:12.5px; color:rgba(255,255,255,0.8); margin-bottom:6px; line-height:1.4; }
+.pricing-formula-row:last-child { margin-bottom:0; }
+.pricing-formula-row code { background:rgba(255,255,255,0.08); border-radius:4px; padding:1px 6px; font-size:12px; color:#00E8B0; }
+.pricing-warn { display:flex; align-items:flex-start; gap:10px; background:rgba(255,180,0,0.1); border:1px solid rgba(255,180,0,0.3); border-radius:8px; padding:12px 14px; margin-bottom:12px; font-size:12.5px; color:rgba(255,220,100,0.9); line-height:1.5; }
+.pricing-warn strong { color:#FFD166; }
+.combo-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:8px; }
+.combo-item { background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12); border-radius:6px; padding:8px 10px; font-size:12px; color:rgba(255,255,255,0.8); }
+.user-type-grid { display:flex; flex-direction:column; gap:10px; margin-top:8px; }
+.user-type-card { display:flex; align-items:flex-start; gap:12px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:8px; padding:13px 14px; }
+.user-type-icon { font-size:22px; flex-shrink:0; margin-top:1px; }
+.user-type-name { font-size:13px; font-weight:700; color:#fff; margin-bottom:3px; }
+.user-type-desc { font-size:12.5px; color:rgba(255,255,255,0.7); line-height:1.4; }
+.user-type-tag { display:inline-block; border-radius:4px; padding:1px 7px; font-size:10.5px; font-weight:700; margin-top:4px; }
+.tag-paid { background:rgba(232,85,61,0.2); border:1px solid rgba(232,85,61,0.4); color:#ff8070; }
+.tag-free { background:rgba(0,180,140,0.2); border:1px solid rgba(0,200,150,0.4); color:#00E8B0; }
  
-  /* Section label */
-  .section-label {
-    font-weight: 600;
-    font-size: 13.5px;
-    color: #fff;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.4);
-    margin-bottom: 14px;
-  }
+.recovery-periods-block { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:14px 16px; margin-bottom:4px; }
+.recovery-bullet-line { font-size:13.5px; color:rgba(255,255,255,0.88); line-height:1.6; padding:3px 0; }
  
-  /* Location grid */
-  .loc-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-bottom: 6px;
-  }
-  .loc-grid.row2 {
-    grid-template-columns: repeat(3, 1fr);
-    margin-top: 10px;
-  }
+/* RECOVERY */
+.recovery-date-input { width:100%; padding:10px 14px; border:1.5px solid rgba(255,255,255,0.4); border-radius:8px; font-family:inherit; font-size:13.5px; color:#2C2C33; background:rgba(255,255,255,0.55); outline:none; transition:border-color 0.2s; }
+.recovery-date-input:focus { border-color:#00C896; box-shadow:0 0 0 3px rgba(0,200,150,0.15); }
+.recovery-period-row { display:flex; justify-content:space-between; align-items:center; padding:9px 12px; border-radius:6px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); margin-bottom:6px; font-size:13px; color:rgba(255,255,255,0.85); }
+.recovery-period-row .period-label { flex:1; }
+.recovery-period-row .period-amount { font-weight:700; color:#FFD166; }
+.recovery-total-row { display:flex; justify-content:space-between; align-items:center; padding:13px 16px; border-radius:8px; background:rgba(255,180,0,0.15); border:1.5px solid rgba(255,180,0,0.4); margin-top:10px; font-size:15px; font-weight:700; color:#FFD166; }
+.recovery-total-ttc { display:flex; justify-content:space-between; align-items:center; padding:13px 16px; border-radius:8px; background:rgba(232,85,61,0.15); border:1.5px solid rgba(232,85,61,0.4); margin-top:8px; font-size:15px; font-weight:700; color:#ff8070; }
+.recovery-warn { display:flex; align-items:flex-start; gap:10px; background:rgba(232,85,61,0.12); border:1px solid rgba(232,85,61,0.3); border-radius:8px; padding:12px 14px; margin-bottom:14px; font-size:12.5px; color:rgba(255,160,140,0.9); line-height:1.5; }
  
-  .loc-btn {
-    background: rgba(255,255,255,0.55);
-    border: 1.5px solid rgba(255,255,255,0.7);
-    border-radius: var(--radius);
-    padding: 18px 10px 16px;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.2s ease;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    position: relative;
-  }
-  .loc-btn:hover {
-    border-color: rgba(0,200,160,0.6);
-    background: rgba(0,180,140,0.15);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(0,180,140,0.2);
-  }
-  .loc-btn.active {
-    border-color: #00C896;
-    background: rgba(0,180,140,0.22);
-    box-shadow: 0 0 0 1.5px #00C896, 0 4px 20px rgba(0,200,150,0.25);
-  }
-  .loc-btn .loc-icon {
-    font-size: 24px;
-    color: rgba(255,255,255,0.6);
-    transition: color 0.2s;
-  }
-  .loc-btn.active .loc-icon,
-  .loc-btn:hover .loc-icon { color: #00E8B0; }
-  .loc-btn .loc-label {
-    font-size: 13px;
-    font-weight: 600;
-    color: #fff;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.4);
-    line-height: 1.3;
-  }
-  .loc-btn.active .loc-label { color: #00E8B0; text-shadow: none; }
-  .loc-btn .loc-sub {
-    font-size: 11px;
-    color: rgba(255,255,255,0.75);
-    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-    font-weight: 400;
-  }
+/* COUNTRY SEARCH */
+.country-search-wrap { position:relative; margin-bottom:18px; }
+.country-input-row { display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.55); border:1.5px solid rgba(255,255,255,0.7); border-radius:8px; padding:8px 12px; transition:border-color 0.2s; }
+.country-input-row:focus-within { border-color:#00C896; box-shadow:0 0 0 3px rgba(0,200,150,0.15); }
+.country-selected-flag { font-size:20px; min-width:24px; text-align:center; }
+.country-search-input { flex:1; border:none; background:transparent; font-family:inherit; font-size:13.5px; color:#2C2C33; outline:none; min-width:0; }
+.country-search-input::placeholder { color:#6B7280; }
+.country-clear-btn { background:none; border:none; color:#9CA3AF; font-size:14px; cursor:pointer; padding:0 2px; line-height:1; flex-shrink:0; }
+.country-clear-btn:hover { color:#2C2C33; }
+.country-dropdown { position:absolute; top:calc(100% + 4px); left:0; right:0; background:rgba(255,255,255,0.97); backdrop-filter:blur(16px); border:1.5px solid #00C896; border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.18); z-index:999; overflow:hidden; max-height:220px; overflow-y:auto; }
+.country-dropdown::-webkit-scrollbar { width:5px; }
+.country-dropdown::-webkit-scrollbar-thumb { background:rgba(0,0,0,0.15); border-radius:3px; }
+.country-option { display:flex; align-items:center; gap:10px; padding:10px 14px; cursor:pointer; font-size:13.5px; color:#2C2C33; transition:background 0.1s; }
+.country-option:hover, .country-option.highlighted { background:rgba(0,160,157,0.08); }
+.country-option.selected { background:rgba(0,200,150,0.12); font-weight:600; color:#008784; }
+.country-option-flag { font-size:18px; min-width:22px; }
+.country-option-name { flex:1; }
+.country-option-sub { font-size:11px; color:#9CA3AF; }
+.country-no-result { padding:14px; text-align:center; color:#9CA3AF; font-size:13px; }
  
-  /* Conditional sections */
-  .conditional { margin-top: 22px; animation: fadeSlide 0.3s ease; }
-  @keyframes fadeSlide {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+/* ELIGIBILITY */
+@media(max-width:768px){ .elig-grid { grid-template-columns:1fr; } }
+.elig-field {}
+.elig-result { animation:fadeSlide 0.3s ease; }
+.elig-row { display:flex; align-items:flex-start; gap:12px; padding:11px 14px; border-radius:8px; margin-bottom:8px; font-size:13px; font-weight:500; }
+.elig-row:last-child { margin-bottom:0; }
+.elig-row.ok { background:rgba(0,180,140,0.15); border:1px solid rgba(0,200,150,0.3); color:rgba(255,255,255,0.88); }
+.elig-row.ko { background:rgba(232,85,61,0.15); border:1px solid rgba(232,85,61,0.3); color:rgba(255,255,255,0.88); }
+.elig-row.warn { background:rgba(255,180,0,0.12); border:1px solid rgba(255,180,0,0.3); color:rgba(255,255,255,0.88); }
+.elig-status { font-size:18px; flex-shrink:0; margin-top:1px; }
+.elig-text { flex:1; line-height:1.45; }
+.elig-text strong { color:#fff; }
+.elig-verdict { display:flex; align-items:center; gap:12px; padding:14px 18px; border-radius:10px; margin-top:12px; font-size:14px; font-weight:700; }
+.elig-verdict.eligible { background:rgba(0,180,140,0.22); border:2px solid #00C896; color:#00E8B0; }
+.elig-verdict.ineligible { background:rgba(232,85,61,0.18); border:2px solid #E8553D; color:#ff8070; }
+.elig-verdict.partial { background:rgba(255,180,0,0.15); border:2px solid rgba(255,180,0,0.5); color:#FFD166; }
+.elig-verdict-icon { font-size:22px; }
  
-  /* Select */
-  .select-wrap { position: relative; margin-bottom: 4px; }
-  .select-wrap select {
-    width: 100%;
-    padding: 11px 38px 11px 14px;
-    border: 1.5px solid rgba(255,255,255,0.4);
-    border-radius: 8px;
-    font-family: inherit;
-    font-size: 13.5px;
-    color: #2C2C33;
-    background: rgba(255,255,255,0.55);
-    appearance: none;
-    cursor: pointer;
-    transition: border-color 0.2s;
-  }
-  .select-wrap select:focus {
-    outline: none;
-    border-color: #00C896;
-    box-shadow: 0 0 0 3px rgba(0,200,150,0.15);
-  }
-  .select-wrap::after {
-    content: '▾';
-    position: absolute;
-    right: 14px; top: 50%;
-    transform: translateY(-50%);
-    color: #6B7280;
-    pointer-events: none;
-    font-size: 14px;
-  }
- 
-  /* B2B/B2C buttons */
-  .status-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-  .status-btn {
-    background: rgba(255,255,255,0.55);
-    border: 1.5px solid rgba(255,255,255,0.7);
-    border-radius: var(--radius);
-    padding: 16px 10px 14px;
-    cursor: pointer;
-    text-align: center;
-    transition: all 0.2s ease;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-  }
-  .status-btn:hover {
-    border-color: rgba(0,200,160,0.6);
-    background: rgba(0,180,140,0.15);
-  }
-  .status-btn.active {
-    border-color: #00C896;
-    background: rgba(0,180,140,0.22);
-    box-shadow: 0 0 0 1.5px #00C896, 0 4px 20px rgba(0,200,150,0.25);
-  }
-  .status-btn .s-icon { font-size: 22px; color: rgba(255,255,255,0.5); }
-  .status-btn.active .s-icon { color: #00E8B0; }
-  .status-btn .s-label { font-size: 13px; font-weight: 600; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.4); }
-  .status-btn.active .s-label { color: #00E8B0; text-shadow: none; }
-  .status-btn .s-sub { font-size: 11px; color: rgba(255,255,255,0.75); text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
-  .status-btn.active .s-sub { color: rgba(0,232,176,0.7); text-shadow: none; }
- 
-  /* VAT verification */
-  .vat-verify {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 8px;
-    padding: 14px 16px;
-    margin-top: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  .vat-verify p {
-    font-size: 12.5px;
-    color: rgba(255,255,255,0.6);
-    line-height: 1.4;
-  }
-  .vat-verify a {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    border: 1.5px solid rgba(255,255,255,0.2);
-    border-radius: 8px;
-    background: rgba(255,255,255,0.08);
-    color: rgba(255,255,255,0.85);
-    text-decoration: none;
-    font-size: 12.5px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.15s;
-    white-space: nowrap;
-  }
-  .vat-verify a:hover {
-    border-color: #00C896;
-    color: #00E8B0;
-    background: rgba(0,180,140,0.15);
-  }
- 
-  /* VAT valid/invalid */
-  .vat-result { margin-top: 14px; }
-  .vat-result .section-label { margin-bottom: 10px; }
-  .vat-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .vat-btn {
-    padding: 10px 14px;
-    border-radius: 8px;
-    border: 1.5px solid rgba(255,255,255,0.7);
-    background: rgba(255,255,255,0.55);
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 500;
-    color: rgba(255,255,255,0.85);
-    display: flex; align-items: center; justify-content: center; gap: 6px;
-    transition: all 0.2s;
-  }
-  .vat-btn:hover { border-color: rgba(0,200,160,0.5); }
-  .vat-btn.valid.active {
-    border-color: #00C896;
-    background: rgba(0,180,140,0.22);
-    color: #00E8B0;
-    box-shadow: 0 0 0 1.5px #00C896;
-  }
-  .vat-btn.invalid.active {
-    border-color: #E8553D;
-    background: rgba(232,85,61,0.18);
-    color: #ff8070;
-    box-shadow: 0 0 0 1.5px #E8553D;
-  }
- 
-  /* Right panel - result */
-  .result-card {
-    background: var(--white);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-    border: 1px solid rgba(255,255,255,0.12);
-    overflow: hidden;
-    transition: all 0.3s ease;
-  }
-  .result-card.has-result {
-    border-color: #00C896;
-    box-shadow: 0 0 0 1.5px #00C896, 0 8px 32px rgba(0,200,150,0.15);
-  }
-  .result-header {
-    padding: 16px 22px;
-    font-weight: 600;
-    font-size: 15px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    color: rgba(255,255,255,0.92);
-    background: rgba(255,255,255,0.06);
-    transition: all 0.3s;
-  }
-  .result-card.has-result .result-header {
-    background: rgba(0,180,140,0.18);
-    border-bottom-color: rgba(0,200,150,0.2);
-    color: #00E8B0;
-  }
-  .result-body { padding: 22px; }
- 
-  /* Placeholder */
-  .placeholder {
-    text-align: center;
-    padding: 40px 20px;
-    color: rgba(255,255,255,0.45);
-  }
-  .placeholder .ph-icon {
-    width: 48px; height: 48px;
-    background: rgba(255,255,255,0.06);
-    border-radius: 50%;
-    display: inline-flex; align-items: center; justify-content: center;
-    margin-bottom: 14px;
-    font-size: 22px;
-  }
-  .placeholder p { font-size: 13.5px; line-height: 1.5; }
- 
-  /* Result content */
-  .result-content { animation: fadeSlide 0.35s ease; }
-  .tax-label { font-size: 12.5px; color: rgba(255,255,255,0.5); margin-bottom: 6px; }
-  .tax-rate {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-    margin-bottom: 18px;
-  }
-  .tax-rate .rate {
-    font-size: 36px;
-    font-weight: 700;
-    color: #fff;
-    line-height: 1;
-  }
-  .tax-rate .name {
-    font-size: 14px;
-    font-weight: 500;
-    color: #00E8B0;
-    background: rgba(0,180,140,0.18);
-    padding: 3px 10px;
-    border-radius: 6px;
-    border: 1px solid rgba(0,200,150,0.3);
-  }
-  .tax-explanation {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px;
-    padding: 14px 16px;
-    font-size: 13px;
-    line-height: 1.55;
-    color: rgba(255,255,255,0.8);
-    margin-bottom: 18px;
-  }
-  .tax-action {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    margin-bottom: 14px;
-  }
-  .tax-action .action-icon {
-    flex-shrink: 0;
-    margin-top: 1px;
-    font-size: 16px;
-  }
-  .tax-action .action-label {
-    font-size: 12.5px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.75);
-    margin-bottom: 6px;
-  }
-  .tax-copy-btn {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    width: 100%;
-    background: rgba(255,255,255,0.07);
-    border: 1.5px solid rgba(255,255,255,0.18);
-    border-radius: 8px;
-    padding: 12px 16px;
-    font-family: inherit;
-    font-size: 13.5px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.88);
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .tax-copy-btn:hover {
-    border-color: #00C896;
-    background: rgba(0,180,140,0.18);
-    color: #00E8B0;
-  }
-  .tax-copy-btn:active { transform: scale(0.98); }
-  .tax-copy-btn .copy-icon {
-    flex-shrink: 0;
-    font-size: 15px;
-    opacity: 0.6;
-    transition: opacity 0.2s;
-  }
-  .tax-copy-btn:hover .copy-icon { opacity: 1; }
-  .tax-copy-btn.copied {
-    border-color: #00C896;
-    background: rgba(0,180,140,0.22);
-    color: #00E8B0;
-  }
- 
-  /* Reset button */
-  .reset-btn {
-    width: 100%;
-    padding: 13px;
-    background: rgba(0,180,140,0.25);
-    border: 1.5px solid #00C896;
-    color: #00E8B0;
-    border-radius: 8px;
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-top: 6px;
-  }
-  .reset-btn:hover { background: rgba(0,180,140,0.4); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,200,150,0.25); }
-  .reset-btn:active { transform: translateY(0); }
 </style>
 </head>
 <body>
  
-<!-- Earth background image -->
-<div class="space-bg">
-  <canvas id="earthCanvas"></canvas>
-</div>
+<div class="space-bg"><canvas id="earthCanvas"></canvas></div>
  
-<!-- Content -->
 <div class="content-layer">
  
-<div class="header">
-  <div class="header-icon">📋</div>
-  <span class="header-title" id="header-title">Assistant Fiscalité &amp; TVA</span>
-  <!-- Language switcher -->
-  <div class="lang-switcher">
-    <button class="lang-btn active" id="lang-fr" onclick="setLang('fr')">
-      <span class="lang-flag">🇫🇷</span> FR
-    </button>
-    <button class="lang-btn" id="lang-en" onclick="setLang('en')">
-      <span class="lang-flag">🇬🇧</span> EN
-    </button>
-  </div>
-</div>
- 
-<div class="main">
-  <!-- Left panel -->
-  <div class="card">
-    <div class="card-header">
-      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-      <span id="card-header-loc">Localisation du client</span>
+  <!-- HEADER -->
+  <div class="header">
+    <button class="header-back" id="btn-back" onclick="goHome()">← <span id="back-label">Retour</span></button>
+    <div class="header-icon" id="header-icon-el">🧰</div>
+    <span class="header-title" id="header-title">CCM Toolbox</span>
+    <div class="lang-switcher">
+      <button class="lang-btn active" id="lang-fr" onclick="setLang('fr')"><span class="lang-flag">🇫🇷</span> FR</button>
+      <button class="lang-btn" id="lang-en" onclick="setLang('en')"><span class="lang-flag">🇬🇧</span> EN</button>
     </div>
-    <div class="card-body">
-      <div class="section-label" id="label-where">Où est situé le client ?</div>
-      <div class="loc-grid">
-        <button class="loc-btn" data-loc="be" onclick="selectLocation('be')">
-          <span class="loc-icon">🏠</span>
-          <span class="loc-label" id="loc-be-label">Belgique</span>
-        </button>
-        <button class="loc-btn" data-loc="eu" onclick="selectLocation('eu')">
-          <span class="loc-icon">€</span>
-          <span class="loc-label" id="loc-eu-label">Union Européenne</span>
-          <span class="loc-sub" id="loc-eu-sub">(Hors BE)</span>
-        </button>
-        <button class="loc-btn" data-loc="uk" onclick="selectLocation('uk')">
-          <span class="loc-icon">£</span>
-          <span class="loc-label" id="loc-uk-label">Royaume-Uni</span>
-        </button>
+  </div>
+ 
+  <!-- HOME -->
+  <div id="view-home" style="flex:1;display:flex;flex-direction:column;">
+    <div class="home-body">
+      <div class="home-hero">
+        <div class="home-hero-title" id="home-title">CCM Toolbox</div>
+        <div class="home-hero-sub" id="home-sub">Sélectionnez un outil pour commencer</div>
       </div>
-      <div class="loc-grid row2">
-        <button class="loc-btn" data-loc="ch" onclick="selectLocation('ch')">
-          <span class="loc-icon">⛰️</span>
-          <span class="loc-label" id="loc-ch-label">Suisse</span>
+      <div class="tool-grid">
+        <button class="tool-btn" onclick="openTool('vat')">
+          <span class="tool-badge" id="badge-vat">Actif</span>
+          <span class="tool-icon">📋</span>
+          <span class="tool-label" id="tool-vat-label">Vérification TVA</span>
+          <span class="tool-sub" id="tool-vat-sub">Régime applicable par pays</span>
         </button>
-        <button class="loc-btn" data-loc="row" onclick="selectLocation('row')">
-          <span class="loc-icon">✈️</span>
-          <span class="loc-label" id="loc-row-label">Reste du monde</span>
+        <button class="tool-btn" onclick="openTool('iot')">
+          <span class="tool-badge" id="badge-iot">Actif</span>
+          <span class="tool-icon">🔌</span>
+          <span class="tool-label" id="tool-iot-label">IoT Box</span>
+          <span class="tool-sub" id="tool-iot-sub">Physical &amp; Virtual IoT</span>
         </button>
-        <div></div>
+        <button class="tool-btn" onclick="openTool('hosting')">
+          <span class="tool-badge" id="badge-hosting">Actif</span>
+          <span class="tool-icon">🖥️</span>
+          <span class="tool-label" id="tool-hosting-label">Hébergement</span>
+          <span class="tool-sub" id="tool-hosting-sub">Cloud · SH · On Premise</span>
+        </button>
+        <button class="tool-btn" onclick="openTool('pricing')">
+          <span class="tool-badge" id="badge-pricing">Actif</span>
+          <span class="tool-icon">💶</span>
+          <span class="tool-label" id="tool-pricing-label">Plans & Pricing</span>
+          <span class="tool-sub" id="tool-pricing-sub">Tarifs · Users · Version gratuite</span>
+        </button>
+        <button class="tool-btn" onclick="openTool('recovery')">
+          <span class="tool-badge" id="badge-recovery">Actif</span>
+          <span class="tool-icon">🔓</span>
+          <span class="tool-label" id="tool-recovery-label">Database Recovery</span>
+          <span class="tool-sub" id="tool-recovery-sub">Réouverture · Calcul · Email</span>
+        </button>
+        <button class="tool-btn empty"><span class="tool-badge" id="bs3">Bientôt</span><span class="tool-icon">⚙️</span><span class="tool-label" id="tl3">À venir</span></button>
+        <button class="tool-btn empty"><span class="tool-badge" id="bs4">Bientôt</span><span class="tool-icon">⚙️</span><span class="tool-label" id="tl4">À venir</span></button>
+        <button class="tool-btn empty"><span class="tool-badge" id="bs5">Bientôt</span><span class="tool-icon">⚙️</span><span class="tool-label" id="tl5">À venir</span></button>
+        <button class="tool-btn empty"><span class="tool-badge" id="bs6">Bientôt</span><span class="tool-icon">⚙️</span><span class="tool-label" id="tl6">À venir</span></button>
+        <button class="tool-btn empty"><span class="tool-badge" id="bs7">Bientôt</span><span class="tool-icon">⚙️</span><span class="tool-label" id="tl7">À venir</span></button>
       </div>
+    </div>
+  </div>
  
-      <!-- EU conditional fields -->
-      <div id="eu-fields" class="conditional" style="display:none;">
-        <div class="section-label" id="label-eu-country">Pays membre de l'UE</div>
-        <div class="select-wrap" style="margin-bottom:18px;">
-          <select id="eu-country" onchange="onEuCountryChange()">
-            <option value="" id="select-placeholder">— Sélectionnez un pays —</option>
-            <option value="DE">Allemagne / Germany</option>
-            <option value="AT">Autriche / Austria</option>
-            <option value="BG">Bulgarie / Bulgaria</option>
-            <option value="HR">Croatie / Croatia</option>
-            <option value="CY">Chypre / Cyprus</option>
-            <option value="DK">Danemark / Denmark</option>
-            <option value="ES">Espagne / Spain</option>
-            <option value="EE">Estonie / Estonia</option>
-            <option value="FI">Finlande / Finland</option>
-            <option value="FR">France</option>
-            <option value="GR">Grèce / Greece</option>
-            <option value="HU">Hongrie / Hungary</option>
-            <option value="IE">Irlande / Ireland</option>
-            <option value="IT">Italie / Italy</option>
-            <option value="LV">Lettonie / Latvia</option>
-            <option value="LT">Lituanie / Lithuania</option>
-            <option value="LU">Luxembourg</option>
-            <option value="MT">Malte / Malta</option>
-            <option value="NL">Pays-Bas / Netherlands</option>
-            <option value="PL">Pologne / Poland</option>
-            <option value="PT">Portugal</option>
-            <option value="CZ">République tchèque / Czech Republic</option>
-            <option value="RO">Roumanie / Romania</option>
-            <option value="RE">Réunion</option>
-            <option value="SK">Slovaquie / Slovakia</option>
-            <option value="SI">Slovénie / Slovenia</option>
-            <option value="SE">Suède / Sweden</option>
-          </select>
+  <!-- VAT VIEW -->
+  <div id="view-vat" style="display:none;">
+    <div class="tool-main">
+      <div class="card">
+        <div class="card-header">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span id="card-header-loc">Localisation du client</span>
         </div>
- 
-        <div class="section-label" id="label-vat-status">Statut du client (TVA)</div>
-        <div class="status-grid">
-          <button class="status-btn" data-status="b2b" onclick="selectStatus('b2b')">
-            <span class="s-icon">🏢</span>
-            <span class="s-label" id="b2b-label">B2B (Entreprise)</span>
-            <span class="s-sub" id="b2b-sub">Possède un N° de TVA</span>
-          </button>
-          <button class="status-btn" data-status="b2c" onclick="selectStatus('b2c')">
-            <span class="s-icon">👤</span>
-            <span class="s-label" id="b2c-label">B2C (Particulier)</span>
-            <span class="s-sub" id="b2c-sub">Pas de N° de TVA</span>
-          </button>
-        </div>
- 
-        <!-- B2B: VAT verification -->
-        <div id="vat-verify-section" style="display:none;">
-          <div class="vat-verify">
-            <p id="vat-verify-text">Vérifiez la validité du numéro de TVA<br>sur le site officiel de l'UE :</p>
-            <a href="https://ec.europa.eu/taxation_customs/vies/" target="_blank" rel="noopener" id="vies-link">🔗 Consulter VIES</a>
+        <div class="card-body">
+          <div class="section-label" id="label-where">Où est situé le client ?</div>
+          <div class="loc-grid">
+            <button class="loc-btn" data-loc="be" onclick="selectLocation('be')"><span class="loc-icon">🏠</span><span class="loc-label" id="loc-be-label">Belgique</span></button>
+            <button class="loc-btn" data-loc="eu" onclick="selectLocation('eu')"><span class="loc-icon">€</span><span class="loc-label" id="loc-eu-label">Union Européenne</span><span class="loc-sub" id="loc-eu-sub">(Hors BE)</span></button>
+            <button class="loc-btn" data-loc="uk" onclick="selectLocation('uk')"><span class="loc-icon">£</span><span class="loc-label" id="loc-uk-label">Royaume-Uni</span></button>
           </div>
-          <div class="vat-result">
-            <div class="section-label" id="label-vat-check">Résultat de la vérification :</div>
-            <div class="vat-btns">
-              <button class="vat-btn valid" onclick="selectVatResult('valid')" id="btn-vat-valid">✅ TVA Valide</button>
-              <button class="vat-btn invalid" onclick="selectVatResult('invalid')" id="btn-vat-invalid">❌ TVA Invalide</button>
+          <div class="loc-grid row2">
+            <button class="loc-btn" data-loc="ch" onclick="selectLocation('ch')"><span class="loc-icon">⛰️</span><span class="loc-label" id="loc-ch-label">Suisse</span></button>
+            <button class="loc-btn" data-loc="row" onclick="selectLocation('row')"><span class="loc-icon">✈️</span><span class="loc-label" id="loc-row-label">Reste du monde</span></button>
+            <div></div>
+          </div>
+          <div id="eu-fields" class="conditional" style="display:none;">
+            <div class="section-label" id="label-eu-country">Pays membre de l'UE</div>
+            <div class="country-search-wrap" id="country-search-wrap">
+              <div class="country-input-row">
+                <span class="country-selected-flag" id="country-selected-flag"></span>
+                <input type="text" id="country-search-input" class="country-search-input"
+                  placeholder="Rechercher un pays..."
+                  autocomplete="off"
+                  oninput="countrySearchInput(this.value)"
+                  onfocus="countrySearchFocus()"
+                  onkeydown="countrySearchKey(event)"
+                />
+                <button class="country-clear-btn" id="country-clear-btn" onclick="countrySearchClear()" style="display:none;">✕</button>
+              </div>
+              <div class="country-dropdown" id="country-dropdown" style="display:none;"></div>
+              <input type="hidden" id="eu-country" value="">
+            </div>
+            <div class="section-label" id="label-vat-status">Statut du client (TVA)</div>
+            <div class="status-grid">
+              <button class="status-btn" data-status="b2b" onclick="selectStatus('b2b')"><span class="s-icon">🏢</span><span class="s-label" id="b2b-label">B2B (Entreprise)</span><span class="s-sub" id="b2b-sub">Possède un N° de TVA</span></button>
+              <button class="status-btn" data-status="b2c" onclick="selectStatus('b2c')"><span class="s-icon">👤</span><span class="s-label" id="b2c-label">B2C (Particulier)</span><span class="s-sub" id="b2c-sub">Pas de N° de TVA</span></button>
+            </div>
+            <div id="vat-verify-section" style="display:none;">
+              <div class="vat-verify">
+                <p id="vat-verify-text">Vérifiez la validité du numéro de TVA<br>sur le site officiel de l'UE :</p>
+                <a href="https://ec.europa.eu/taxation_customs/vies/" target="_blank" rel="noopener" id="vies-link">🔗 Consulter VIES</a>
+              </div>
+              <div class="section-label" id="label-vat-check" style="margin-top:14px;">Résultat de la vérification :</div>
+              <div class="vat-btns">
+                <button class="vat-btn valid" onclick="selectVatResult('valid')" id="btn-vat-valid">✅ TVA Valide</button>
+                <button class="vat-btn invalid" onclick="selectVatResult('invalid')" id="btn-vat-invalid">❌ TVA Invalide</button>
+              </div>
             </div>
           </div>
         </div>
       </div>
+      <div class="result-card" id="vat-result-card">
+        <div class="result-header"><span id="vat-result-icon">ℹ️</span><span id="vat-result-title">Régime applicable</span></div>
+        <div class="result-body">
+          <div class="placeholder" id="vat-placeholder"><div class="ph-icon">ℹ️</div><p id="vat-placeholder-text">Sélectionnez la localisation du client pour<br>déterminer la TVA applicable.</p></div>
+          <div class="result-content" id="vat-result-content" style="display:none;"></div>
+        </div>
+      </div>
     </div>
   </div>
  
-  <!-- Right panel -->
-  <div class="result-card" id="result-card">
-    <div class="result-header" id="result-header">
-      <span id="result-icon">ℹ️</span>
-      <span id="result-title">Régime applicable</span>
-    </div>
-    <div class="result-body" id="result-body">
-      <div class="placeholder" id="placeholder">
-        <div class="ph-icon">ℹ️</div>
-        <p id="placeholder-text">Sélectionnez la localisation du client pour<br>déterminer la TVA applicable.</p>
+  <!-- IOT VIEW -->
+  <div id="view-iot" style="display:none;">
+    <div class="tool-main">
+      <div class="card">
+        <div class="card-header"><span style="font-size:18px;">🔌</span><span id="iot-card-header">Type d'IoT</span></div>
+        <div class="card-body">
+          <div class="section-label" id="iot-label-type">Quel type d'IoT ?</div>
+          <div class="type-grid">
+            <button class="type-btn" data-iot="physical" onclick="iotSelectType('physical')"><span class="t-icon">📦</span><span class="t-label" id="iot-physical-label">Physical IoT</span><span class="t-sub" id="iot-physical-sub">Boîtier physique</span></button>
+            <button class="type-btn" data-iot="virtual" onclick="iotSelectType('virtual')"><span class="t-icon">💻</span><span class="t-label" id="iot-virtual-label">Virtual IoT</span><span class="t-sub" id="iot-virtual-sub">Windows (logiciel)</span></button>
+          </div>
+          <div id="iot-physical-fields" class="conditional" style="display:none;">
+            <div class="iot-sub-notice"><div class="iot-sub-notice-icon">⚠️</div><div><div class="iot-sub-notice-title" id="iot-sub-title">Abonnement requis</div><div class="iot-sub-notice-text" id="iot-sub-text">Un <strong>IoT Subscription</strong> est nécessaire par boîtier physique. Sans cet abonnement actif, la box ne peut pas fonctionner.</div></div></div>
+            <div class="section-label" id="iot-label-need" style="margin-top:18px;">Quel est le besoin ?</div>
+            <div class="iot-need-grid">
+              <button class="iot-need-btn" data-need="order" onclick="iotSelectNeed('order')"><span class="iot-need-icon">🚚</span><span class="iot-need-label" id="need-order">Commander une box</span></button>
+              <button class="iot-need-btn" data-need="connect" onclick="iotSelectNeed('connect')"><span class="iot-need-icon">🔗</span><span class="iot-need-label" id="need-connect">Connecter la box</span></button>
+              <button class="iot-need-btn" data-need="ports" onclick="iotSelectNeed('ports')"><span class="iot-need-icon">🔌</span><span class="iot-need-label" id="need-ports">Ports &amp; compatibilité</span></button>
+              <button class="iot-need-btn" data-need="client" onclick="iotSelectNeed('client')"><span class="iot-need-icon">👥</span><span class="iot-need-label" id="need-client">Ressources client</span></button>
+              <button class="iot-need-btn" data-need="videos-p" onclick="iotSelectNeed('videos-p')"><span class="iot-need-icon">🎬</span><span class="iot-need-label" id="need-videos-p">Vidéos</span></button>
+              <button class="iot-need-btn" data-need="contacts" onclick="iotSelectNeed('contacts')"><span class="iot-need-icon">👤</span><span class="iot-need-label" id="need-contacts">Référents</span></button>
+            </div>
+          </div>
+          <div id="iot-virtual-fields" class="conditional" style="display:none;">
+            <div class="section-label" id="iot-label-need-v" style="margin-top:18px;">Quel est le besoin ?</div>
+            <div class="iot-need-grid">
+              <button class="iot-need-btn" data-need="connect-v" onclick="iotSelectNeed('connect-v')"><span class="iot-need-icon">🔗</span><span class="iot-need-label" id="need-connect-v">Connecter (Windows)</span></button>
+              <button class="iot-need-btn" data-need="client-v" onclick="iotSelectNeed('client-v')"><span class="iot-need-icon">👥</span><span class="iot-need-label" id="need-client-v">Ressources client</span></button>
+              <button class="iot-need-btn" data-need="videos-v" onclick="iotSelectNeed('videos-v')"><span class="iot-need-icon">🎬</span><span class="iot-need-label" id="need-videos-v">Vidéos</span></button>
+              <button class="iot-need-btn" data-need="contacts-v" onclick="iotSelectNeed('contacts-v')"><span class="iot-need-icon">👤</span><span class="iot-need-label" id="need-contacts-v">Référents</span></button>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="result-content" id="result-content" style="display:none;"></div>
+      <div class="result-card" id="iot-result-card">
+        <div class="result-header"><span id="iot-result-icon">ℹ️</span><span id="iot-result-title">Ressources IoT</span></div>
+        <div class="result-body">
+          <div class="placeholder" id="iot-placeholder"><div class="ph-icon">🔌</div><p id="iot-placeholder-text">Sélectionnez le type d'IoT<br>pour afficher les ressources.</p></div>
+          <div class="result-content" id="iot-result-content" style="display:none;"></div>
+        </div>
+      </div>
     </div>
   </div>
-</div>
+ 
+ 
+  <!-- HOSTING VIEW -->
+  <div id="view-hosting" style="display:none;">
+    <div class="hosting-layout">
+ 
+      <!-- LEFT COLUMN: stacked cards -->
+      <div class="hosting-left">
+ 
+        <!-- Card 1: Hosting type selector -->
+        <div class="card">
+          <div class="card-header"><span style="font-size:18px;">🖥️</span><span id="hosting-card-header">Type d'hébergement</span></div>
+          <div class="card-body">
+            <div class="section-label" id="hosting-label-type">Quel type d'hébergement ?</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <button class="type-btn" data-hosting="saas" onclick="hostingSelect('saas')" style="flex-direction:row;justify-content:flex-start;padding:14px 18px;gap:14px;">
+                <span class="t-icon">☁️</span>
+                <div style="text-align:left;">
+                  <div class="t-label" id="hosting-saas-label">Odoo Cloud (SaaS)</div>
+                  <div class="t-sub" id="hosting-saas-sub">Hébergement gratuit · Standard ou Personnalisé</div>
+                </div>
+              </button>
+              <button class="type-btn" data-hosting="sh" onclick="hostingSelect('sh')" style="flex-direction:row;justify-content:flex-start;padding:14px 18px;gap:14px;">
+                <span class="t-icon">🔧</span>
+                <div style="text-align:left;">
+                  <div class="t-label" id="hosting-sh-label">Odoo.sh (PaaS)</div>
+                  <div class="t-sub" id="hosting-sh-sub">Cloud · Développement personnalisé</div>
+                </div>
+              </button>
+              <button class="type-btn" data-hosting="onprem" onclick="hostingSelect('onprem')" style="flex-direction:row;justify-content:flex-start;padding:14px 18px;gap:14px;">
+                <span class="t-icon">🖥️</span>
+                <div style="text-align:left;">
+                  <div class="t-label" id="hosting-onprem-label">On Premise</div>
+                  <div class="t-sub" id="hosting-onprem-sub">Hébergement indépendant</div>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+ 
+        <!-- Card 2: Eligibility simulation -->
+        <div class="card" style="margin-top:24px;">
+          <div class="card-header">
+            <span style="font-size:18px;">🧪</span>
+            <span id="elig-card-header">Simulation d'éligibilité</span>
+          </div>
+          <div class="card-body">
+ 
+            <!-- Target hosting -->
+            <div class="section-label" id="elig-label-target">Le client veut migrer vers</div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
+              <button class="type-btn" data-elig-target="saas" onclick="eligSelect('target','saas')" style="flex-direction:row;justify-content:flex-start;padding:11px 16px;gap:12px;">
+                <span class="t-icon" style="font-size:18px;">☁️</span>
+                <div style="text-align:left;">
+                  <div class="t-label" style="font-size:12.5px;" id="elig-target-saas-label">Odoo Cloud (SaaS)</div>
+                </div>
+              </button>
+              <button class="type-btn" data-elig-target="sh" onclick="eligSelect('target','sh')" style="flex-direction:row;justify-content:flex-start;padding:11px 16px;gap:12px;">
+                <span class="t-icon" style="font-size:18px;">🔧</span>
+                <div style="text-align:left;">
+                  <div class="t-label" style="font-size:12.5px;" id="elig-target-sh-label">Odoo.sh (PaaS)</div>
+                </div>
+              </button>
+              <button class="type-btn" data-elig-target="onprem" onclick="eligSelect('target','onprem')" style="flex-direction:row;justify-content:flex-start;padding:11px 16px;gap:12px;">
+                <span class="t-icon" style="font-size:18px;">🖥️</span>
+                <div style="text-align:left;">
+                  <div class="t-label" style="font-size:12.5px;" id="elig-target-onprem-label">On Premise</div>
+                </div>
+              </button>
+            </div>
+ 
+            <div class="elig-grid">
+              <!-- Plan type -->
+              <div class="elig-field">
+                <div class="section-label" id="elig-label-plan">Type de plan</div>
+                <div class="type-grid">
+                  <button class="type-btn" data-elig-plan="standard" onclick="eligSelect('plan','standard')">
+                    <span class="t-icon">📋</span>
+                    <span class="t-label" id="elig-standard-label">Standard</span>
+                  </button>
+                  <button class="type-btn" data-elig-plan="custom" onclick="eligSelect('plan','custom')">
+                    <span class="t-icon">⚙️</span>
+                    <span class="t-label" id="elig-custom-label">Custom</span>
+                  </button>
+                </div>
+              </div>
+              <!-- Billing -->
+              <div class="elig-field">
+                <div class="section-label" id="elig-label-billing">Facturation</div>
+                <div class="type-grid">
+                  <button class="type-btn" data-elig-billing="monthly" onclick="eligSelect('billing','monthly')">
+                    <span class="t-icon">📅</span>
+                    <span class="t-label" id="elig-monthly-label">Mensuel</span>
+                  </button>
+                  <button class="type-btn" data-elig-billing="yearly" onclick="eligSelect('billing','yearly')">
+                    <span class="t-icon">📆</span>
+                    <span class="t-label" id="elig-yearly-label">Annuel</span>
+                  </button>
+                </div>
+              </div>
+              <!-- Version -->
+              <div class="elig-field">
+                <div class="section-label" id="elig-label-version">Version de la DB</div>
+                <div class="select-wrap" style="margin-bottom:0;">
+                  <select id="elig-version" onchange="eligSelectVersion(this.value)">
+                    <option value="" id="elig-version-ph">— Sélectionnez —</option>
+                    <option value="19x">19.x (minor)</option>
+                    <option value="19">19.0</option>
+                    <option value="18">18.0</option>
+                    <option value="17">17.0</option>
+                    <option value="16">16.0</option>
+                    
+                    
+                    
+                  </select>
+                </div>
+              </div>
+            </div>
+ 
+            <!-- Eligibility result -->
+            <div id="elig-result" class="elig-result" style="display:none;margin-top:16px;"></div>
+          </div>
+        </div>
+ 
+      </div><!-- end hosting-left -->
+ 
+      <!-- RIGHT COLUMN: details, full height -->
+      <div class="hosting-right">
+        <div class="result-card" id="hosting-result-card" style="height:100%;">
+          <div class="result-header"><span id="hosting-result-icon">ℹ️</span><span id="hosting-result-title">Détails hébergement</span></div>
+          <div class="result-body" style="overflow-y:auto;">
+            <div class="placeholder" id="hosting-placeholder"><div class="ph-icon">🖥️</div><p id="hosting-placeholder-text">Sélectionnez un type d'hébergement<br>pour afficher les détails.</p></div>
+            <div class="result-content" id="hosting-result-content" style="display:none;"></div>
+          </div>
+        </div>
+      </div>
+ 
+    </div><!-- end hosting-layout -->
+  </div>
+ 
+  <!-- PRICING VIEW -->
+  <div id="view-pricing" style="display:none;">
+    <div class="tool-main">
+      <!-- Left panel -->
+      <div class="card">
+        <div class="card-header"><span style="font-size:18px;">💶</span><span id="pricing-card-header">Plans & Pricing</span></div>
+        <div class="card-body">
+          <div class="section-label" id="pricing-label-topic">Quel sujet ?</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <button class="type-btn" data-pricing="plans" onclick="pricingSelect('plans')" style="flex-direction:row;justify-content:flex-start;padding:14px 18px;gap:14px;">
+              <span class="t-icon">📋</span>
+              <div style="text-align:left;"><div class="t-label" id="pricing-plans-label">Plans Standard & Custom</div><div class="t-sub" id="pricing-plans-sub">Différences, règles, terminologie</div></div>
+            </button>
+            <button class="type-btn" data-pricing="tarifs" onclick="pricingSelect('tarifs')" style="flex-direction:row;justify-content:flex-start;padding:14px 18px;gap:14px;">
+              <span class="t-icon">💰</span>
+              <div style="text-align:left;"><div class="t-label" id="pricing-tarifs-label">Tarifs & Licences</div><div class="t-sub" id="pricing-tarifs-sub">Europe High / Low · FYD · calcul</div></div>
+            </button>
+            <button class="type-btn" data-pricing="users" onclick="pricingSelect('users')" style="flex-direction:row;justify-content:flex-start;padding:14px 18px;gap:14px;">
+              <span class="t-icon">👥</span>
+              <div style="text-align:left;"><div class="t-label" id="pricing-users-label">Types d'utilisateurs</div><div class="t-sub" id="pricing-users-sub">Payant · Portail · POS Employee</div></div>
+            </button>
+            <button class="type-btn" data-pricing="free" onclick="pricingSelect('free')" style="flex-direction:row;justify-content:flex-start;padding:14px 18px;gap:14px;">
+              <span class="t-icon">🆓</span>
+              <div style="text-align:left;"><div class="t-label" id="pricing-free-label">Version gratuite</div><div class="t-sub" id="pricing-free-sub">One App Free · combinaisons valides</div></div>
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- Right panel -->
+      <div class="result-card" id="pricing-result-card">
+        <div class="result-header"><span id="pricing-result-icon">ℹ️</span><span id="pricing-result-title">Détails</span></div>
+        <div class="result-body" style="overflow-y:auto;max-height:calc(100vh - 160px);">
+          <div class="placeholder" id="pricing-placeholder"><div class="ph-icon">💶</div><p id="pricing-placeholder-text">Sélectionnez un sujet<br>pour afficher les détails.</p></div>
+          <div class="result-content" id="pricing-result-content" style="display:none;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- RECOVERY VIEW -->
+  <div id="view-recovery" style="display:none;">
+    <div class="tool-main">
+      <div class="card">
+        <div class="card-header"><span style="font-size:18px;">🔓</span><span id="recovery-card-header">Database Recovery</span></div>
+        <div class="card-body">
+          <div class="section-label" id="recovery-label-type">Type de contrat</div>
+          <div class="type-grid" style="margin-bottom:20px;">
+            <button class="type-btn" data-recovery="monthly" onclick="recoverySelect('monthly')">
+              <span class="t-icon">📅</span><span class="t-label" id="recovery-monthly-label">Mensuel</span>
+            </button>
+            <button class="type-btn" data-recovery="annual" onclick="recoverySelect('annual')">
+              <span class="t-icon">📆</span><span class="t-label" id="recovery-annual-label">Annuel</span>
+            </button>
+          </div>
+ 
+          <div id="recovery-fields" class="conditional" style="display:none;">
+            <div class="section-label" id="recovery-label-dates">Date de renouvellement originale</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px;">
+              <div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:5px;">Jour</div>
+                <div class="select-wrap" style="margin-bottom:0;">
+                  <select id="rec-day" onchange="calcRecovery()">
+                    <option value="">Jour</option>
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:5px;">Mois</div>
+                <div class="select-wrap" style="margin-bottom:0;">
+                  <select id="rec-month" onchange="calcRecovery()">
+                    <option value="">Mois</option>
+                    <option value="0">Janvier</option><option value="1">Février</option><option value="2">Mars</option><option value="3">Avril</option><option value="4">Mai</option><option value="5">Juin</option><option value="6">Juillet</option><option value="7">Août</option><option value="8">Septembre</option><option value="9">Octobre</option><option value="10">Novembre</option><option value="11">Décembre</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:5px;">Année</div>
+                <div class="select-wrap" style="margin-bottom:0;">
+                  <select id="rec-year" onchange="calcRecovery()">
+                    <option value="">Année</option>
+                    <option value="2026" selected>2026</option>
+                    <option value="2025">2025</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+ 
+            <div class="section-label" id="recovery-label-plan" style="display:none;"></div>
+          </div>
+        </div>
+      </div>
+ 
+      <!-- Right panel -->
+      <div class="result-card" id="recovery-result-card">
+        <div class="result-header"><span id="recovery-result-icon">ℹ️</span><span id="recovery-result-title">Calcul de réouverture</span></div>
+        <div class="result-body" style="overflow-y:auto;max-height:calc(100vh - 160px);">
+          <div class="placeholder" id="recovery-placeholder"><div class="ph-icon">🔓</div><p id="recovery-placeholder-text">Sélectionnez le type de contrat<br>pour calculer le montant dû.</p></div>
+          <div class="result-content" id="recovery-result-content" style="display:none;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
  
 <script>
-// =============================================
-// TRANSLATIONS
-// =============================================
-const TRANSLATIONS = {
-  fr: {
-    pageTitle: 'Assistant Fiscalité & TVA',
-    headerTitle: 'Assistant Fiscalité & TVA',
-    cardHeaderLoc: 'Localisation du client',
-    labelWhere: 'Où est situé le client ?',
-    locBeLabel: 'Belgique',
-    locEuLabel: 'Union Européenne',
-    locEuSub: '(Hors BE)',
-    locUkLabel: 'Royaume-Uni',
-    locChLabel: 'Suisse',
-    locRowLabel: 'Reste du monde',
-    labelEuCountry: "Pays membre de l'UE",
-    selectPlaceholder: '— Sélectionnez un pays —',
-    labelVatStatus: 'Statut du client (TVA)',
-    b2bLabel: 'B2B (Entreprise)',
-    b2bSub: 'Possède un N° de TVA',
-    b2cLabel: 'B2C (Particulier)',
-    b2cSub: 'Pas de N° de TVA',
-    vatVerifyText: "Vérifiez la validité du numéro de TVA<br>sur le site officiel de l'UE :",
-    viesLink: '🔗 Consulter VIES',
-    labelVatCheck: 'Résultat de la vérification :',
-    btnVatValid: '✅ TVA Valide',
-    btnVatInvalid: '❌ TVA Invalide',
-    resultTitle: 'Régime applicable',
-    placeholderText: 'Sélectionnez la localisation du client pour<br>déterminer la TVA applicable.',
-    taxLabelText: 'Taxe à sélectionner',
-    actionLabel: 'Action requise sur le devis/facture :',
-    copyBtnText: '📋 Copier',
-    copiedText: '✅ Copié !',
-    newSimulation: 'Nouvelle simulation',
-    scenarios: {
-      be: {
-        rate: '21%',
-        taxName: '21% Services',
-        taxToCopy: '21% Services',
-        explanation: 'Toutes les ventes de services à des clients belges (B2B ou B2C) sont soumises à la TVA belge standard.'
-      },
-      uk: {
-        rate: '0%',
-        taxName: '0% Export Non EU',
-        taxToCopy: '0% Export Non EU',
-        explanation: "Les services fournis à des clients situés au Royaume-Uni ne sont pas soumis à la TVA. Le Royaume-Uni est considéré comme un pays hors UE depuis le Brexit."
-      },
-      ch: {
-        rate: '8.1%',
-        taxName: '8.1% Sales Switzerland (CH)',
-        taxToCopy: '8.1% Sales Switzerland (CH)',
-        explanation: "Les services fournis à des clients situés en Suisse sont soumis à la TVA suisse au taux de 8.1%. La Suisse n'est pas membre de l'UE et applique son propre régime fiscal."
-      },
-      row: {
-        rate: '0%',
-        taxName: '0% Export Non EU',
-        taxToCopy: '0% Export Non EU',
-        explanation: "Les services fournis à des clients situés en dehors de l'Union Européenne, du Royaume-Uni et de la Suisse ne sont pas soumis à la TVA belge."
-      },
-      eu_b2b_valid: (countryName) => ({
-        rate: '0%',
-        taxName: '0% EU Services',
-        taxToCopy: '0% EU Services',
-        explanation: `Le client en ${countryName} dispose d'un numéro de TVA intracommunautaire valide. L'autoliquidation (reverse charge) s'applique : la TVA est due par le client dans son pays.`
-      }),
-      eu_b2b_invalid: (countryName, rate) => ({
-        explanation: `Le numéro de TVA est invalide. Vous devez facturer la TVA au taux en vigueur dans le pays du client (${countryName} : ${rate}%). Le régime OSS (One-Stop-Shop) s'applique.`
-      }),
-      eu_b2b_invalid_reunion: {
-        rate: '0%',
-        taxName: '0% Export Non EU',
-        taxToCopy: '0% Export Non EU',
-        explanation: "La Réunion est un territoire d'outre-mer. Les services fournis ne sont pas soumis à la TVA européenne."
-      },
-      eu_b2c: (countryName, rate) => ({
-        explanation: `Le client est un particulier en ${countryName}. La TVA est due dans le pays du client via le régime OSS (One-Stop-Shop) au taux de ${rate}%.`
-      }),
-      eu_b2c_reunion: {
-        rate: '0%',
-        taxName: '0% Export Non EU',
-        taxToCopy: '0% Export Non EU',
-        explanation: "La Réunion est un territoire d'outre-mer. Les services fournis ne sont pas soumis à la TVA européenne."
-      }
-    }
-  },
-  en: {
-    pageTitle: 'VAT & Tax Assistant',
-    headerTitle: 'VAT & Tax Assistant',
-    cardHeaderLoc: 'Customer Location',
-    labelWhere: 'Where is the customer located?',
-    locBeLabel: 'Belgium',
-    locEuLabel: 'European Union',
-    locEuSub: '(Outside BE)',
-    locUkLabel: 'United Kingdom',
-    locChLabel: 'Switzerland',
-    locRowLabel: 'Rest of the World',
-    labelEuCountry: 'EU Member State',
-    selectPlaceholder: '— Select a country —',
-    labelVatStatus: 'Customer VAT Status',
-    b2bLabel: 'B2B (Business)',
-    b2bSub: 'Has a VAT number',
-    b2cLabel: 'B2C (Individual)',
-    b2cSub: 'No VAT number',
-    vatVerifyText: 'Check the validity of the VAT number<br>on the official EU website:',
-    viesLink: '🔗 Check VIES',
-    labelVatCheck: 'Verification result:',
-    btnVatValid: '✅ VAT Valid',
-    btnVatInvalid: '❌ VAT Invalid',
-    resultTitle: 'Applicable Tax Regime',
-    placeholderText: 'Select the customer location to<br>determine the applicable VAT.',
-    taxLabelText: 'Tax to select',
-    actionLabel: 'Required action on the quote/invoice:',
-    copyBtnText: '📋 Copy',
-    copiedText: '✅ Copied!',
-    newSimulation: 'New simulation',
-    scenarios: {
-      be: {
-        rate: '21%',
-        taxName: '21% Services',
-        taxToCopy: '21% Services',
-        explanation: 'All service sales to Belgian customers (B2B or B2C) are subject to the standard Belgian VAT rate.'
-      },
-      uk: {
-        rate: '0%',
-        taxName: '0% Export Non EU',
-        taxToCopy: '0% Export Non EU',
-        explanation: 'Services provided to customers located in the United Kingdom are not subject to VAT. The UK has been considered a non-EU country since Brexit.'
-      },
-      ch: {
-        rate: '8.1%',
-        taxName: '8.1% Sales Switzerland (CH)',
-        taxToCopy: '8.1% Sales Switzerland (CH)',
-        explanation: 'Services provided to customers in Switzerland are subject to Swiss VAT at a rate of 8.1%. Switzerland is not an EU member and applies its own tax regime.'
-      },
-      row: {
-        rate: '0%',
-        taxName: '0% Export Non EU',
-        taxToCopy: '0% Export Non EU',
-        explanation: 'Services provided to customers located outside the European Union, United Kingdom, and Switzerland are not subject to Belgian VAT.'
-      },
-      eu_b2b_valid: (countryName) => ({
-        rate: '0%',
-        taxName: '0% EU Services',
-        taxToCopy: '0% EU Services',
-        explanation: `The customer in ${countryName} has a valid intra-community VAT number. The reverse charge mechanism applies: VAT is due by the customer in their country.`
-      }),
-      eu_b2b_invalid: (countryName, rate) => ({
-        explanation: `The VAT number is invalid. You must charge VAT at the rate applicable in the customer's country (${countryName}: ${rate}%). The OSS (One-Stop-Shop) regime applies.`
-      }),
-      eu_b2b_invalid_reunion: {
-        rate: '0%',
-        taxName: '0% Export Non EU',
-        taxToCopy: '0% Export Non EU',
-        explanation: 'Réunion is an overseas territory. Services provided are not subject to European VAT.'
-      },
-      eu_b2c: (countryName, rate) => ({
-        explanation: `The customer is a private individual in ${countryName}. VAT is due in the customer's country via the OSS (One-Stop-Shop) regime at a rate of ${rate}%.`
-      }),
-      eu_b2c_reunion: {
-        rate: '0%',
-        taxName: '0% Export Non EU',
-        taxToCopy: '0% Export Non EU',
-        explanation: 'Réunion is an overseas territory. Services provided are not subject to European VAT.'
-      }
-    }
-  }
-};
+// ── TRANSLATIONS ──
+const TR={fr:{pageTitle:'CCM Toolbox',headerTitle:'CCM Toolbox',homeTitle:'CCM Toolbox',homeSub:'Sélectionnez un outil pour commencer',backLabel:'Retour',badgeActive:'Actif',badgeSoon:'Bientôt',toolEmpty:'À venir',toolVatLabel:'Vérification TVA',toolVatSub:'Régime applicable par pays',toolIotLabel:'IoT Box',toolIotSub:'Physical & Virtual IoT',toolHostingLabel:'Hébergement',toolHostingSub:'Cloud · SH · On Premise',hostingHeaderTitle:'Hébergement Odoo',hostingCardHeader:"Type d'hébergement",hostingLabelType:"Quel type d'hébergement ?",hostingSaasLabel:'Odoo Cloud (SaaS)',hostingSaasSub:'Hébergement gratuit · Standard ou Personnalisé',hostingShLabel:'Odoo.sh (PaaS)',hostingShSub:'Cloud · Développement personnalisé',hostingOnpremLabel:'On Premise',hostingOnpremSub:'Hébergement indépendant',hostingResultTitle:'Détails hébergement',hostingPlaceholder:"Sélectionnez un type d'hébergement<br>pour afficher les détails.",hostingResetBtn:'Nouvelle recherche',eligCardHeader:"Simulation d'éligibilité",eligLabelTarget:'Le client veut migrer vers',eligTargetSaasLabel:'Odoo Cloud (SaaS)',eligTargetShLabel:'Odoo.sh (PaaS)',eligTargetOnpremLabel:'On Premise',eligLabelPlan:'Type de plan',eligStandardLabel:'Standard',eligCustomLabel:'Custom',eligLabelBilling:'Facturation',eligMonthlyLabel:'Mensuel',eligYearlyLabel:'Annuel',eligLabelVersion:'Version de la DB',eligVersionPh:'— Sélectionnez une version —',cardHeaderLoc:'Localisation du client',labelWhere:'Où est situé le client ?',locBe:'Belgique',locEu:'Union Européenne',locEuSub:'(Hors BE)',locUk:'Royaume-Uni',locCh:'Suisse',locRow:'Reste du monde',labelEuCountry:"Pays membre de l'UE",selectPH:'— Sélectionnez un pays —',labelVatStatus:'Statut du client (TVA)',b2bLabel:'B2B (Entreprise)',b2bSub:'Possède un N° de TVA',b2cLabel:'B2C (Particulier)',b2cSub:'Pas de N° de TVA',vatVerifyText:"Vérifiez la validité du numéro de TVA<br>sur le site officiel de l'UE :",viesLink:'🔗 Consulter VIES',labelVatCheck:'Résultat de la vérification :',btnVatValid:'✅ TVA Valide',btnVatInvalid:'❌ TVA Invalide',vatResultTitle:'Régime applicable',vatPlaceholder:'Sélectionnez la localisation du client pour<br>déterminer la TVA applicable.',taxLabel:'Taxe à sélectionner',actionLabel:'Action requise sur le devis/facture :',copyBtn:'📋 Copier',copiedBtn:'✅ Copié !',newSim:'Nouvelle simulation',iotHeaderTitle:'IoT Box',iotCardHeader:"Type d'IoT",iotLabelType:"Quel type d'IoT ?",iotPhysicalLabel:'Physical IoT',iotPhysicalSub:'Boîtier physique',iotVirtualLabel:'Virtual IoT',iotVirtualSub:'Windows (logiciel)',iotSubTitle:'Abonnement requis',iotSubText:'Un <strong>IoT Subscription</strong> est nécessaire par boîtier physique. Sans cet abonnement actif, la box ne peut pas fonctionner.',iotLabelNeed:'Quel est le besoin ?',iotLabelNeedV:'Quel est le besoin ?',needOrder:'Commander une box',needConnect:'Connecter la box',needPorts:'Ports & compatibilité',needClient:'Ressources client',needVideosP:'Vidéos',needContacts:'Référents',needConnectV:'Connecter (Windows)',needClientV:'Ressources client',needVideosV:'Vidéos',needContactsV:'Référents',iotResultTitle:'Ressources IoT',iotPlaceholder:"Sélectionnez le type d'IoT<br>pour afficher les ressources.",iotResetBtn:'Nouvelle recherche',vatHeaderTitle:'Assistant TVA',pricingHeaderTitle:'Plans & Pricing',toolPricingLabel:'Plans & Pricing',toolPricingSub:'Tarifs · Users · Version gratuite',pricingCardHeader:'Plans & Pricing',pricingLabelTopic:'Quel sujet ?',pricingPlansLabel:'Plans Standard & Custom',pricingPlansSub:'Différences, règles, terminologie',pricingTarifsLabel:'Tarifs & Licences',pricingTarifsSub:'Europe High / Low · FYD · calcul',pricingUsersLabel:"Types d'utilisateurs",pricingUsersSub:'Payant · Portail · POS Employee',pricingFreeLabel:'Version gratuite',pricingFreeSub:'One App Free · combinaisons valides',pricingPlaceholder:'Sélectionnez un sujet<br>pour afficher les détails.',recoveryHeaderTitle:'Database Recovery',toolRecoveryLabel:'Database Recovery',toolRecoverySub:'Réouverture · Calcul · Email',recoveryCardHeader:'Database Recovery',recoveryLabelType:'Type de contrat',recoveryMonthlyLabel:'Mensuel',recoveryAnnualLabel:'Annuel',recoveryLabelDates:'Informations requises',recoveryRenewalLabel:'Date de renouvellement originale',recoveryTodayLabel:'Date du jour',recoveryLabelPlan:'Plan',recoveryLabelPricelist:'Pricelist',recoveryUsersLabel:"Nombre d'utilisateurs",recoveryPlaceholder:'Sélectionnez le type de contrat<br>pour calculer le montant dû.',recoveryResultTitle:'Calcul de réouverture',
+scenarios:{be:{rate:'21%',taxName:'21% Services',taxToCopy:'21% Services',explanation:'Toutes les ventes de services à des clients belges (B2B ou B2C) sont soumises à la TVA belge standard.'},uk:{rate:'0%',taxName:'0% Export Non EU',taxToCopy:'0% Export Non EU',explanation:"Les services fournis au Royaume-Uni ne sont pas soumis à la TVA. Le Royaume-Uni est hors UE depuis le Brexit."},ch:{rate:'8.1%',taxName:'8.1% Sales Switzerland (CH)',taxToCopy:'8.1% Sales Switzerland (CH)',explanation:"Les services en Suisse sont soumis à la TVA suisse à 8.1%. La Suisse n'est pas membre de l'UE."},row:{rate:'0%',taxName:'0% Export Non EU',taxToCopy:'0% Export Non EU',explanation:"Les services hors UE, UK et Suisse ne sont pas soumis à la TVA belge."},eu_b2b_valid:(n)=>({rate:'0%',taxName:'0% EU Services',taxToCopy:'0% EU Services',explanation:`Le client en ${n} a un N° de TVA valide. L'autoliquidation (reverse charge) s'applique.`}),eu_b2b_invalid:(n,r)=>({explanation:`N° TVA invalide. Facturez la TVA du pays client (${n} : ${r}%). Régime OSS.`}),eu_b2b_invalid_reunion:{rate:'0%',taxName:'0% Export Non EU',taxToCopy:'0% Export Non EU',explanation:"La Réunion est un territoire d'outre-mer. Pas de TVA européenne."},eu_b2c:(n,r)=>({explanation:`Particulier en ${n}. TVA due via OSS au taux de ${r}%.`}),eu_b2c_reunion:{rate:'0%',taxName:'0% Export Non EU',taxToCopy:'0% Export Non EU',explanation:"La Réunion est un territoire d'outre-mer. Pas de TVA européenne."}}},
+en:{pageTitle:'CCM Toolbox',headerTitle:'CCM Toolbox',homeTitle:'CCM Toolbox',homeSub:'Select a tool to get started',backLabel:'Back',badgeActive:'Active',badgeSoon:'Soon',toolEmpty:'Coming soon',toolVatLabel:'VAT Check',toolVatSub:'Applicable regime by country',toolIotLabel:'IoT Box',toolIotSub:'Physical & Virtual IoT',toolHostingLabel:'Hosting',toolHostingSub:'Cloud · SH · On Premise',hostingHeaderTitle:'Odoo Hosting',hostingCardHeader:'Hosting type',hostingLabelType:'Which hosting type?',hostingSaasLabel:'Odoo Cloud (SaaS)',hostingSaasSub:'Free hosting · Standard or Custom',hostingShLabel:'Odoo.sh (PaaS)',hostingShSub:'Cloud · Custom development',hostingOnpremLabel:'On Premise',hostingOnpremSub:'Independent hosting',hostingResultTitle:'Hosting details',hostingPlaceholder:'Select a hosting type<br>to display details.',hostingResetBtn:'New search',pricingHeaderTitle:'Plans & Pricing',toolPricingLabel:'Plans & Pricing',toolPricingSub:'Pricing · Users · Free version',pricingCardHeader:'Plans & Pricing',pricingLabelTopic:'Which topic?',pricingPlansLabel:'Standard & Custom Plans',pricingPlansSub:'Differences, rules, terminology',pricingTarifsLabel:'Pricing & Licences',pricingTarifsSub:'Europe High / Low · FYD · calculation',pricingUsersLabel:'User Types',pricingUsersSub:'Paid · Portal · POS Employee',pricingFreeLabel:'Free Version',pricingFreeSub:'One App Free · valid combinations',pricingPlaceholder:'Select a topic<br>to display details.',recoveryHeaderTitle:'Database Recovery',toolRecoveryLabel:'Database Recovery',toolRecoverySub:'Recovery · Calculation · Email',recoveryCardHeader:'Database Recovery',recoveryLabelType:'Contract type',recoveryMonthlyLabel:'Monthly',recoveryAnnualLabel:'Annual',recoveryLabelDates:'Required information',recoveryRenewalLabel:'Original renewal date',recoveryTodayLabel:"Today's date",recoveryLabelPlan:'Plan',recoveryLabelPricelist:'Pricelist',recoveryUsersLabel:'Number of users',recoveryPlaceholder:'Select the contract type<br>to calculate the amount due.',recoveryResultTitle:'Recovery Calculation',eligCardHeader:'Eligibility Simulation',eligLabelTarget:'Client wants to migrate to',eligTargetSaasLabel:'Odoo Cloud (SaaS)',eligTargetShLabel:'Odoo.sh (PaaS)',eligTargetOnpremLabel:'On Premise',eligLabelPlan:'Plan type',eligStandardLabel:'Standard',eligCustomLabel:'Custom',eligLabelBilling:'Billing',eligMonthlyLabel:'Monthly',eligYearlyLabel:'Yearly',eligLabelVersion:'DB Version',eligVersionPh:'— Select a version —',cardHeaderLoc:'Customer Location',labelWhere:'Where is the customer located?',locBe:'Belgium',locEu:'European Union',locEuSub:'(Outside BE)',locUk:'United Kingdom',locCh:'Switzerland',locRow:'Rest of the World',labelEuCountry:'EU Member State',selectPH:'— Select a country —',labelVatStatus:'Customer VAT Status',b2bLabel:'B2B (Business)',b2bSub:'Has a VAT number',b2cLabel:'B2C (Individual)',b2cSub:'No VAT number',vatVerifyText:'Check the validity of the VAT number<br>on the official EU website:',viesLink:'🔗 Check VIES',labelVatCheck:'Verification result:',btnVatValid:'✅ VAT Valid',btnVatInvalid:'❌ VAT Invalid',vatResultTitle:'Applicable Tax Regime',vatPlaceholder:'Select the customer location to<br>determine the applicable VAT.',taxLabel:'Tax to select',actionLabel:'Required action on the quote/invoice:',copyBtn:'📋 Copy',copiedBtn:'✅ Copied!',newSim:'New simulation',iotHeaderTitle:'IoT Box',iotCardHeader:'IoT Type',iotLabelType:'Which IoT type?',iotPhysicalLabel:'Physical IoT',iotPhysicalSub:'Physical device',iotVirtualLabel:'Virtual IoT',iotVirtualSub:'Windows (software)',iotSubTitle:'Subscription required',iotSubText:'An <strong>IoT Subscription</strong> is required per physical box. Without an active subscription, the box cannot work.',iotLabelNeed:'What do you need?',iotLabelNeedV:'What do you need?',needOrder:'Order a box',needConnect:'Connect the box',needPorts:'Ports & compatibility',needClient:'Client resources',needVideosP:'Videos',needContacts:'Reference contacts',needConnectV:'Connect (Windows)',needClientV:'Client resources',needVideosV:'Videos',needContactsV:'Reference contacts',iotResultTitle:'IoT Resources',iotPlaceholder:'Select the IoT type<br>to display resources.',iotResetBtn:'New search',
+scenarios:{be:{rate:'21%',taxName:'21% Services',taxToCopy:'21% Services',explanation:'All service sales to Belgian customers (B2B or B2C) are subject to the standard Belgian VAT rate.'},uk:{rate:'0%',taxName:'0% Export Non EU',taxToCopy:'0% Export Non EU',explanation:'Services to UK customers are not subject to VAT. The UK is non-EU since Brexit.'},ch:{rate:'8.1%',taxName:'8.1% Sales Switzerland (CH)',taxToCopy:'8.1% Sales Switzerland (CH)',explanation:'Services in Switzerland are subject to Swiss VAT at 8.1%. Switzerland is not an EU member.'},row:{rate:'0%',taxName:'0% Export Non EU',taxToCopy:'0% Export Non EU',explanation:'Services outside the EU, UK and Switzerland are not subject to Belgian VAT.'},eu_b2b_valid:(n)=>({rate:'0%',taxName:'0% EU Services',taxToCopy:'0% EU Services',explanation:`The customer in ${n} has a valid VAT number. Reverse charge applies.`}),eu_b2b_invalid:(n,r)=>({explanation:`Invalid VAT number. Charge VAT at the customer's country rate (${n}: ${r}%). OSS regime applies.`}),eu_b2b_invalid_reunion:{rate:'0%',taxName:'0% Export Non EU',taxToCopy:'0% Export Non EU',explanation:'Réunion is an overseas territory. No European VAT applies.'},eu_b2c:(n,r)=>({explanation:`Private individual in ${n}. VAT due via OSS at ${r}%.`}),eu_b2c_reunion:{rate:'0%',taxName:'0% Export Non EU',taxToCopy:'0% Export Non EU',explanation:'Réunion is an overseas territory. No European VAT applies.'}}}};
  
-const EU_VAT_RATES = {
-  DE: { name: 'Allemagne', nameEn: 'Germany', rate: 19 },
-  AT: { name: 'Autriche', nameEn: 'Austria', rate: 20 },
-  BG: { name: 'Bulgarie', nameEn: 'Bulgaria', rate: 20 },
-  HR: { name: 'Croatie', nameEn: 'Croatia', rate: 25 },
-  CY: { name: 'Chypre', nameEn: 'Cyprus', rate: 19 },
-  DK: { name: 'Danemark', nameEn: 'Denmark', rate: 25 },
-  ES: { name: 'Espagne', nameEn: 'Spain', rate: 21 },
-  EE: { name: 'Estonie', nameEn: 'Estonia', rate: 22 },
-  FI: { name: 'Finlande', nameEn: 'Finland', rate: 25.5 },
-  FR: { name: 'France', nameEn: 'France', rate: 20 },
-  GR: { name: 'Grèce', nameEn: 'Greece', rate: 24 },
-  HU: { name: 'Hongrie', nameEn: 'Hungary', rate: 27 },
-  IE: { name: 'Irlande', nameEn: 'Ireland', rate: 23 },
-  IT: { name: 'Italie', nameEn: 'Italy', rate: 22 },
-  LV: { name: 'Lettonie', nameEn: 'Latvia', rate: 21 },
-  LT: { name: 'Lituanie', nameEn: 'Lithuania', rate: 21 },
-  LU: { name: 'Luxembourg', nameEn: 'Luxembourg', rate: 17, taxLabel: 'VAT for EU Services to Luxembourg (17%)' },
-  MT: { name: 'Malte', nameEn: 'Malta', rate: 18 },
-  NL: { name: 'Pays-Bas', nameEn: 'Netherlands', rate: 21 },
-  PL: { name: 'Pologne', nameEn: 'Poland', rate: 23 },
-  PT: { name: 'Portugal', nameEn: 'Portugal', rate: 23 },
-  CZ: { name: 'République tchèque', nameEn: 'Czech Republic', rate: 21 },
-  RO: { name: 'Roumanie', nameEn: 'Romania', rate: 21, taxLabel: 'VAT for EU Services to Romanian (21)' },
-  RE: { name: 'Réunion', nameEn: 'Réunion', rate: 0, taxLabel: '0% Export Non EU', isExport: true },
-  SK: { name: 'Slovaquie', nameEn: 'Slovakia', rate: 23 },
-  SI: { name: 'Slovénie', nameEn: 'Slovenia', rate: 22 },
-  SE: { name: 'Suède', nameEn: 'Sweden', rate: 25 },
-};
+const EU_VAT={DE:{name:'Allemagne',nameEn:'Germany',rate:19},AT:{name:'Autriche',nameEn:'Austria',rate:20},BG:{name:'Bulgarie',nameEn:'Bulgaria',rate:20},HR:{name:'Croatie',nameEn:'Croatia',rate:25},CY:{name:'Chypre',nameEn:'Cyprus',rate:19},DK:{name:'Danemark',nameEn:'Denmark',rate:25},ES:{name:'Espagne',nameEn:'Spain',rate:21},EE:{name:'Estonie',nameEn:'Estonia',rate:22},FI:{name:'Finlande',nameEn:'Finland',rate:25.5},FR:{name:'France',nameEn:'France',rate:20},GR:{name:'Grèce',nameEn:'Greece',rate:24},HU:{name:'Hongrie',nameEn:'Hungary',rate:27},IE:{name:'Irlande',nameEn:'Ireland',rate:23},IT:{name:'Italie',nameEn:'Italy',rate:22},LV:{name:'Lettonie',nameEn:'Latvia',rate:21},LT:{name:'Lituanie',nameEn:'Lithuania',rate:21},LU:{name:'Luxembourg',nameEn:'Luxembourg',rate:17,taxLabel:'VAT for EU Services to Luxembourg (17%)'},MT:{name:'Malte',nameEn:'Malta',rate:18},NL:{name:'Pays-Bas',nameEn:'Netherlands',rate:21},PL:{name:'Pologne',nameEn:'Poland',rate:23},PT:{name:'Portugal',nameEn:'Portugal',rate:23},CZ:{name:'République tchèque',nameEn:'Czech Republic',rate:21},RO:{name:'Roumanie',nameEn:'Romania',rate:21,taxLabel:'VAT for EU Services to Romanian (21)'},RE:{name:'Réunion',nameEn:'Réunion',rate:0,taxLabel:'0% Export Non EU',isExport:true},SK:{name:'Slovaquie',nameEn:'Slovakia',rate:23},SI:{name:'Slovénie',nameEn:'Slovenia',rate:22},SE:{name:'Suède',nameEn:'Sweden',rate:25}};
  
-let currentLang = 'fr';
-let state = { location: null, euCountry: '', status: null, vatResult: null };
-let lastScenario = null;
+const IOT={fr:{order:{title:'Commander une box',sections:[{label:'RESSOURCES INTERNES',links:[{icon:'📦',label:'Commander via Odoo + Project',url:'https://www.odoo.com'},{icon:'💾',label:'IoT Guide général',url:'https://www.odoo.com'}]},{label:'ABONNEMENT',links:[{icon:'🧾',label:'IoT Subscription — info abonnement',url:'https://www.odoo.com'}]}]},connect:{title:'Connecter la box',sections:[{label:'RESSOURCES INTERNES',links:[{icon:'💾',label:'Physical IoT — Guide connexion',url:'https://www.odoo.com'},{icon:'🧐',label:'Virtual vs Physical IoT',url:'https://www.odoo.com'}]},{label:'DOCUMENTATION',links:[{icon:'📄',label:'Odoo — Connecting IoT Box',url:'https://www.odoo.com/documentation'}]}]},ports:{title:'Ports & compatibilité',sections:[{label:'RESSOURCES INTERNES',links:[{icon:'📄',label:'IoT Box (Physical) — Ports',url:'https://www.odoo.com'},{icon:'🖨️',label:'Hardware in a flash — Compatibilité',url:'https://www.odoo.com'}]}]},client:{title:'Ressources client',sections:[{label:'POUR LES CLIENTS',links:[{icon:'🌐',label:"Nalios — Démystifier l'IoT",url:'https://www.nalios.com'},{icon:'📄',label:'Odoo — IoT documentation générale',url:'https://www.odoo.com/documentation'},{icon:'🔗',label:'Odoo — Connecting IoT Box',url:'https://www.odoo.com/documentation'}]}]},'videos-p':{title:'Vidéos Physical IoT',sections:[{label:'TUTORIELS',links:[{icon:'▶️',label:"Odoo IoT Box — Beginner's Guide",url:'https://www.youtube.com'},{icon:'▶️',label:'Flashing the IoT — Étape 1',url:'https://www.youtube.com'},{icon:'▶️',label:'Connecting IoT — Étape 2',url:'https://www.youtube.com'}]},{label:'AVANCÉ',links:[{icon:'▶️',label:'Advanced configuration',url:'https://www.youtube.com'}]}]},contacts:{title:'Référents IoT',contacts:[{i:'MOBT',r:'Product Owner',c:'#714B67'},{i:'QCE',r:'Technical',c:'#017E84'},{i:'HKS',r:'Technical',c:'#017E84'},{i:'QUEL',r:'Expert BA',c:'#3b82f6'},{i:'ISES',r:'Expert BA',c:'#3b82f6'},{i:'TANO',r:'Expert BA',c:'#3b82f6'},{i:'RHE',r:'Expert BA',c:'#3b82f6'},{i:'CHE',r:'Delivery',c:'#e85d04'}]},'connect-v':{title:'Connecter Virtual IoT',sections:[{label:'RESSOURCES INTERNES',links:[{icon:'💻',label:'Windows IoT (Virtual) — Guide',url:'https://www.odoo.com'},{icon:'🧐',label:'Virtual vs Physical IoT',url:'https://www.odoo.com'}]},{label:'DOCUMENTATION',links:[{icon:'📄',label:'Odoo — Windows Virtual IoT',url:'https://www.odoo.com/documentation'}]}]},'client-v':{title:'Ressources client Virtual',sections:[{label:'POUR LES CLIENTS',links:[{icon:'🌐',label:"Nalios — Démystifier l'IoT",url:'https://www.nalios.com'},{icon:'📄',label:'Odoo — Virtual IoT documentation',url:'https://www.odoo.com/documentation'}]}]},'videos-v':{title:'Vidéos Virtual IoT',sections:[{label:'TUTORIELS',links:[{icon:'▶️',label:'Windows Virtual IoT — Installation tutorial',url:'https://www.youtube.com'}]}]},'contacts-v':{title:'Référents IoT',contacts:[{i:'MOBT',r:'Product Owner',c:'#714B67'},{i:'QCE',r:'Technical',c:'#017E84'},{i:'HKS',r:'Technical',c:'#017E84'},{i:'QUEL',r:'Expert BA',c:'#3b82f6'},{i:'ISES',r:'Expert BA',c:'#3b82f6'},{i:'TANO',r:'Expert BA',c:'#3b82f6'},{i:'RHE',r:'Expert BA',c:'#3b82f6'},{i:'CHE',r:'Delivery',c:'#e85d04'}]}},
+en:{order:{title:'Order a box',sections:[{label:'INTERNAL RESOURCES',links:[{icon:'📦',label:'Order via Odoo + Project',url:'https://www.odoo.com'},{icon:'💾',label:'IoT General Guide',url:'https://www.odoo.com'}]},{label:'SUBSCRIPTION',links:[{icon:'🧾',label:'IoT Subscription — info',url:'https://www.odoo.com'}]}]},connect:{title:'Connect the box',sections:[{label:'INTERNAL RESOURCES',links:[{icon:'💾',label:'Physical IoT — Connection guide',url:'https://www.odoo.com'},{icon:'🧐',label:'Virtual vs Physical IoT',url:'https://www.odoo.com'}]},{label:'DOCUMENTATION',links:[{icon:'📄',label:'Odoo — Connecting IoT Box',url:'https://www.odoo.com/documentation'}]}]},ports:{title:'Ports & compatibility',sections:[{label:'INTERNAL RESOURCES',links:[{icon:'📄',label:'IoT Box (Physical) — Ports',url:'https://www.odoo.com'},{icon:'🖨️',label:'Hardware in a flash — Compatibility',url:'https://www.odoo.com'}]}]},client:{title:'Client resources',sections:[{label:'FOR CLIENTS',links:[{icon:'🌐',label:'Nalios — Demystifying IoT',url:'https://www.nalios.com'},{icon:'📄',label:'Odoo — IoT general documentation',url:'https://www.odoo.com/documentation'},{icon:'🔗',label:'Odoo — Connecting IoT Box',url:'https://www.odoo.com/documentation'}]}]},'videos-p':{title:'Videos Physical IoT',sections:[{label:'TUTORIALS',links:[{icon:'▶️',label:"Odoo IoT Box — Beginner's Guide",url:'https://www.youtube.com'},{icon:'▶️',label:'Flashing the IoT — Step 1',url:'https://www.youtube.com'},{icon:'▶️',label:'Connecting IoT — Step 2',url:'https://www.youtube.com'}]},{label:'ADVANCED',links:[{icon:'▶️',label:'Advanced configuration',url:'https://www.youtube.com'}]}]},contacts:{title:'IoT Reference contacts',contacts:[{i:'MOBT',r:'Product Owner',c:'#714B67'},{i:'QCE',r:'Technical',c:'#017E84'},{i:'HKS',r:'Technical',c:'#017E84'},{i:'QUEL',r:'Expert BA',c:'#3b82f6'},{i:'ISES',r:'Expert BA',c:'#3b82f6'},{i:'TANO',r:'Expert BA',c:'#3b82f6'},{i:'RHE',r:'Expert BA',c:'#3b82f6'},{i:'CHE',r:'Delivery',c:'#e85d04'}]},'connect-v':{title:'Connect Virtual IoT',sections:[{label:'INTERNAL RESOURCES',links:[{icon:'💻',label:'Windows IoT (Virtual) — Guide',url:'https://www.odoo.com'},{icon:'🧐',label:'Virtual vs Physical IoT',url:'https://www.odoo.com'}]},{label:'DOCUMENTATION',links:[{icon:'📄',label:'Odoo — Windows Virtual IoT',url:'https://www.odoo.com/documentation'}]}]},'client-v':{title:'Client resources Virtual',sections:[{label:'FOR CLIENTS',links:[{icon:'🌐',label:'Nalios — Demystifying IoT',url:'https://www.nalios.com'},{icon:'📄',label:'Odoo — Virtual IoT documentation',url:'https://www.odoo.com/documentation'}]}]},'videos-v':{title:'Videos Virtual IoT',sections:[{label:'TUTORIALS',links:[{icon:'▶️',label:'Windows Virtual IoT — Installation tutorial',url:'https://www.youtube.com'}]}]},'contacts-v':{title:'IoT Reference contacts',contacts:[{i:'MOBT',r:'Product Owner',c:'#714B67'},{i:'QCE',r:'Technical',c:'#017E84'},{i:'HKS',r:'Technical',c:'#017E84'},{i:'QUEL',r:'Expert BA',c:'#3b82f6'},{i:'ISES',r:'Expert BA',c:'#3b82f6'},{i:'TANO',r:'Expert BA',c:'#3b82f6'},{i:'RHE',r:'Expert BA',c:'#3b82f6'},{i:'CHE',r:'Delivery',c:'#e85d04'}]}}};
  
-function t(key) {
-  return TRANSLATIONS[currentLang][key] || TRANSLATIONS['fr'][key] || key;
+// ── STATE ──
+let lang='fr', view='home';
+let vatState={location:null,euCountry:'',status:null,vatResult:null}, vatLast=null;
+let iotState={type:null,need:null};
+function t(k){return TR[lang][k]||TR.fr[k]||k;}
+function el(id){return document.getElementById(id);}
+ 
+// ── NAV ──
+function openTool(tool){
+  el('view-home').style.display='none';
+  el('view-vat').style.display='none';
+  el('view-iot').style.display='none';
+  el('view-hosting').style.display='none';
+  el('view-pricing').style.display='none';
+  el('view-recovery').style.display='none';
+  el('btn-back').classList.add('visible');
+  view=tool;
+  if(tool==='vat'){el('view-vat').style.display='block';el('header-icon-el').textContent='📋';el('header-title').textContent=t('vatHeaderTitle');}
+  else if(tool==='iot'){el('view-iot').style.display='block';el('header-icon-el').textContent='🔌';el('header-title').textContent=t('iotHeaderTitle');}
+  else if(tool==='hosting'){el('view-hosting').style.display='block';el('header-icon-el').textContent='🖥️';el('header-title').textContent=t('hostingHeaderTitle');}
+  else if(tool==='pricing'){el('view-pricing').style.display='block';el('header-icon-el').textContent='💶';el('header-title').textContent=t('pricingHeaderTitle');}
+  else if(tool==='recovery'){el('view-recovery').style.display='block';el('header-icon-el').textContent='🔓';el('header-title').textContent=t('recoveryHeaderTitle');}
+}
+function goHome(){
+  el('view-home').style.display='flex';el('view-vat').style.display='none';el('view-iot').style.display='none';el('view-hosting').style.display='none';el('view-pricing').style.display='none';el('view-recovery').style.display='none';
+  el('btn-back').classList.remove('visible');el('header-icon-el').textContent='🧰';el('header-title').textContent=t('headerTitle');view='home';
 }
  
-function setLang(lang) {
-  currentLang = lang;
-  document.documentElement.lang = lang;
- 
-  // Update active button
-  document.getElementById('lang-fr').classList.toggle('active', lang === 'fr');
-  document.getElementById('lang-en').classList.toggle('active', lang === 'en');
- 
-  // Update all static UI text
-  document.title = t('pageTitle');
-  document.getElementById('header-title').textContent = t('headerTitle');
-  document.getElementById('card-header-loc').textContent = t('cardHeaderLoc');
-  document.getElementById('label-where').textContent = t('labelWhere');
-  document.getElementById('loc-be-label').textContent = t('locBeLabel');
-  document.getElementById('loc-eu-label').textContent = t('locEuLabel');
-  document.getElementById('loc-eu-sub').textContent = t('locEuSub');
-  document.getElementById('loc-uk-label').textContent = t('locUkLabel');
-  document.getElementById('loc-ch-label').textContent = t('locChLabel');
-  document.getElementById('loc-row-label').textContent = t('locRowLabel');
-  document.getElementById('label-eu-country').textContent = t('labelEuCountry');
-  document.getElementById('select-placeholder').textContent = t('selectPlaceholder');
-  document.getElementById('label-vat-status').textContent = t('labelVatStatus');
-  document.getElementById('b2b-label').textContent = t('b2bLabel');
-  document.getElementById('b2b-sub').textContent = t('b2bSub');
-  document.getElementById('b2c-label').textContent = t('b2cLabel');
-  document.getElementById('b2c-sub').textContent = t('b2cSub');
-  document.getElementById('vat-verify-text').innerHTML = t('vatVerifyText');
-  document.getElementById('vies-link').textContent = t('viesLink');
-  document.getElementById('label-vat-check').textContent = t('labelVatCheck');
-  document.getElementById('btn-vat-valid').textContent = t('btnVatValid');
-  document.getElementById('btn-vat-invalid').textContent = t('btnVatInvalid');
-  document.getElementById('result-title').textContent = t('resultTitle');
-  document.getElementById('placeholder-text').innerHTML = t('placeholderText');
- 
-  // Re-render result panel if a result is showing
-  if (lastScenario) {
-    showResult(lastScenario);
-  }
+// ── LANG ──
+function setLang(l){
+  lang=l; document.documentElement.lang=l;
+  el('lang-fr').classList.toggle('active',l==='fr'); el('lang-en').classList.toggle('active',l==='en');
+  document.title=t('pageTitle');
+  el('back-label').textContent=t('backLabel');
+  el('header-title').textContent=view==='vat'?t('vatHeaderTitle'):view==='iot'?t('iotHeaderTitle'):view==='hosting'?t('hostingHeaderTitle'):view==='pricing'?t('pricingHeaderTitle'):view==='recovery'?t('recoveryHeaderTitle'):t('headerTitle');
+  // recovery static labels
+  el('badge-recovery').textContent=t('badgeActive'); el('tool-recovery-label').textContent=t('toolRecoveryLabel'); el('tool-recovery-sub').textContent=t('toolRecoverySub');
+  el('recovery-card-header').textContent=t('recoveryCardHeader');
+  el('recovery-label-type').textContent=t('recoveryLabelType');
+  el('recovery-monthly-label').textContent=t('recoveryMonthlyLabel');
+  el('recovery-annual-label').textContent=t('recoveryAnnualLabel');
+  el('recovery-label-dates').textContent=t('recoveryLabelDates');
+  el('recovery-renewal-label').textContent=t('recoveryRenewalLabel');
+  el('recovery-today-label').textContent=t('recoveryTodayLabel');
+  el('recovery-label-plan').textContent=t('recoveryLabelPlan');
+  el('recovery-label-pricelist').textContent=t('recoveryLabelPricelist');
+  el('recovery-users-label').textContent=t('recoveryUsersLabel');
+  el('recovery-placeholder-text').innerHTML=t('recoveryPlaceholder');
+  if(recoveryState.type) calcRecovery();
+  // pricing static labels
+  el('pricing-card-header').textContent=t('pricingCardHeader');
+  el('pricing-label-topic').textContent=t('pricingLabelTopic');
+  el('pricing-plans-label').textContent=t('pricingPlansLabel'); el('pricing-plans-sub').textContent=t('pricingPlansSub');
+  el('pricing-tarifs-label').textContent=t('pricingTarifsLabel'); el('pricing-tarifs-sub').textContent=t('pricingTarifsSub');
+  el('pricing-users-label').textContent=t('pricingUsersLabel'); el('pricing-users-sub').textContent=t('pricingUsersSub');
+  el('pricing-free-label').textContent=t('pricingFreeLabel'); el('pricing-free-sub').textContent=t('pricingFreeSub');
+  el('pricing-placeholder-text').innerHTML=t('pricingPlaceholder');
+  if(pricingState.topic) renderPricingResult();
+  el('home-title').textContent=t('homeTitle'); el('home-sub').textContent=t('homeSub');
+  el('badge-vat').textContent=t('badgeActive'); el('tool-vat-label').textContent=t('toolVatLabel'); el('tool-vat-sub').textContent=t('toolVatSub');
+  el('badge-iot').textContent=t('badgeActive'); el('tool-iot-label').textContent=t('toolIotLabel'); el('tool-iot-sub').textContent=t('toolIotSub');
+  el('badge-hosting').textContent=t('badgeActive'); el('tool-hosting-label').textContent=t('toolHostingLabel'); el('tool-hosting-sub').textContent=t('toolHostingSub');
+  el('badge-pricing').textContent=t('badgeActive'); el('tool-pricing-label').textContent=t('toolPricingLabel'); el('tool-pricing-sub').textContent=t('toolPricingSub');
+  for(let i=1;i<=6;i++){el(`bs${i}`).textContent=t('badgeSoon');el(`tl${i}`).textContent=t('toolEmpty');}
+  el('bs7').textContent=t('badgeSoon');el('tl7').textContent=t('toolEmpty');
+  el('card-header-loc').textContent=t('cardHeaderLoc'); el('label-where').textContent=t('labelWhere');
+  el('loc-be-label').textContent=t('locBe'); el('loc-eu-label').textContent=t('locEu'); el('loc-eu-sub').textContent=t('locEuSub');
+  el('loc-uk-label').textContent=t('locUk'); el('loc-ch-label').textContent=t('locCh'); el('loc-row-label').textContent=t('locRow');
+  el('label-eu-country').textContent=t('labelEuCountry');
+  const _csi2=el('country-search-input');
+  if(_csi2&&!el('eu-country').value) _csi2.placeholder=lang==='fr'?'Rechercher un pays...':'Search a country...'; el('select-placeholder').textContent=t('selectPH');
+  el('label-vat-status').textContent=t('labelVatStatus');
+  el('b2b-label').textContent=t('b2bLabel'); el('b2b-sub').textContent=t('b2bSub');
+  el('b2c-label').textContent=t('b2cLabel'); el('b2c-sub').textContent=t('b2cSub');
+  el('vat-verify-text').innerHTML=t('vatVerifyText'); el('vies-link').textContent=t('viesLink');
+  el('label-vat-check').textContent=t('labelVatCheck'); el('btn-vat-valid').textContent=t('btnVatValid'); el('btn-vat-invalid').textContent=t('btnVatInvalid');
+  el('vat-result-title').textContent=t('vatResultTitle'); el('vat-placeholder-text').innerHTML=t('vatPlaceholder');
+  el('iot-card-header').textContent=t('iotCardHeader'); el('iot-label-type').textContent=t('iotLabelType');
+  el('iot-physical-label').textContent=t('iotPhysicalLabel'); el('iot-physical-sub').textContent=t('iotPhysicalSub');
+  el('iot-virtual-label').textContent=t('iotVirtualLabel'); el('iot-virtual-sub').textContent=t('iotVirtualSub');
+  el('iot-sub-title').textContent=t('iotSubTitle'); el('iot-sub-text').innerHTML=t('iotSubText');
+  el('iot-label-need').textContent=t('iotLabelNeed'); el('iot-label-need-v').textContent=t('iotLabelNeedV');
+  el('need-order').textContent=t('needOrder'); el('need-connect').textContent=t('needConnect'); el('need-ports').textContent=t('needPorts');
+  el('need-client').textContent=t('needClient'); el('need-videos-p').textContent=t('needVideosP'); el('need-contacts').textContent=t('needContacts');
+  el('need-connect-v').textContent=t('needConnectV'); el('need-client-v').textContent=t('needClientV');
+  el('need-videos-v').textContent=t('needVideosV'); el('need-contacts-v').textContent=t('needContactsV');
+  el('iot-result-title').textContent=t('iotResultTitle'); el('iot-placeholder-text').innerHTML=t('iotPlaceholder');
+  el('hosting-card-header').textContent=t('hostingCardHeader');
+  el('hosting-label-type').textContent=t('hostingLabelType');
+  el('hosting-saas-label').textContent=t('hostingSaasLabel'); el('hosting-saas-sub').textContent=t('hostingSaasSub');
+  el('hosting-sh-label').textContent=t('hostingShLabel'); el('hosting-sh-sub').textContent=t('hostingShSub');
+  el('hosting-onprem-label').textContent=t('hostingOnpremLabel'); el('hosting-onprem-sub').textContent=t('hostingOnpremSub');
+  el('hosting-result-title').textContent=t('hostingResultTitle');
+  el('hosting-placeholder-text').innerHTML=t('hostingPlaceholder');
+  el('elig-card-header').textContent=t('eligCardHeader');
+  el('elig-label-target').textContent=t('eligLabelTarget');
+  el('elig-target-saas-label').textContent=t('eligTargetSaasLabel');
+  el('elig-target-sh-label').textContent=t('eligTargetShLabel');
+  el('elig-target-onprem-label').textContent=t('eligTargetOnpremLabel');
+  el('elig-label-plan').textContent=t('eligLabelPlan');
+  el('elig-standard-label').textContent=t('eligStandardLabel');
+  el('elig-custom-label').textContent=t('eligCustomLabel');
+  el('elig-label-billing').textContent=t('eligLabelBilling');
+  el('elig-monthly-label').textContent=t('eligMonthlyLabel');
+  el('elig-yearly-label').textContent=t('eligYearlyLabel');
+  el('elig-label-version').textContent=t('eligLabelVersion');
+  el('elig-version-ph').textContent=t('eligVersionPh');
+  if(eligState.plan||eligState.billing||eligState.version) runEligibility();
+  if(vatLast)showVatResult(vatLast);
+  if(iotState.need)iotShowResult(iotState.need);
+  if(hostingState.type)hostingShowResult(hostingState.type);
 }
  
-function selectLocation(loc) {
-  state = { location: loc, euCountry: '', status: null, vatResult: null };
-  lastScenario = null;
-  document.querySelectorAll('.loc-btn').forEach(b => b.classList.remove('active'));
+// ── VAT ──
+function selectLocation(loc){
+  vatState={location:loc,euCountry:'',status:null,vatResult:null};vatLast=null;
+  document.querySelectorAll('.loc-btn').forEach(b=>b.classList.remove('active'));
   document.querySelector(`.loc-btn[data-loc="${loc}"]`).classList.add('active');
- 
-  document.getElementById('eu-fields').style.display = loc === 'eu' ? 'block' : 'none';
-  document.getElementById('eu-country').value = '';
-  document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('vat-verify-section').style.display = 'none';
-  document.querySelectorAll('.vat-btn').forEach(b => b.classList.remove('active'));
- 
-  if (loc !== 'eu') {
-    showResult(loc);
-  } else {
-    clearResult();
-  }
+  el('eu-fields').style.display=loc==='eu'?'block':'none';
+  el('eu-country').value='';
+  const csi=el('country-search-input'); if(csi){csi.value=''; el('country-selected-flag').textContent=''; el('country-clear-btn').style.display='none'; closeCountryDropdown();}
+  document.querySelectorAll('.status-btn').forEach(b=>b.classList.remove('active'));
+  el('vat-verify-section').style.display='none';
+  document.querySelectorAll('.vat-btn').forEach(b=>b.classList.remove('active'));
+  highlightCountry({be:'BE',uk:'GB',ch:'CH',row:null,eu:null}[loc]||null);
+  if(loc!=='eu')showVatResult(loc); else clearVatResult();
 }
- 
-function onEuCountryChange() {
-  const country = document.getElementById('eu-country').value;
-  state.euCountry = country;
-  state.status = null;
-  state.vatResult = null;
-  lastScenario = null;
-  document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('vat-verify-section').style.display = 'none';
-  document.querySelectorAll('.vat-btn').forEach(b => b.classList.remove('active'));
- 
-  if (country && EU_VAT_RATES[country] && EU_VAT_RATES[country].isExport) {
-    showResult('eu_b2c');
-  } else {
-    clearResult();
-  }
+function onEuCountryChange(){
+  const c=el('eu-country').value; vatState.euCountry=c;vatState.status=null;vatState.vatResult=null;vatLast=null;
+  document.querySelectorAll('.status-btn').forEach(b=>b.classList.remove('active'));
+  el('vat-verify-section').style.display='none';
+  document.querySelectorAll('.vat-btn').forEach(b=>b.classList.remove('active'));
+  highlightCountry(c||null);
+  if(c&&EU_VAT[c]&&EU_VAT[c].isExport)showVatResult('eu_b2c'); else clearVatResult();
 }
- 
-function selectStatus(s) {
-  state.status = s;
-  state.vatResult = null;
-  lastScenario = null;
-  document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
+function selectStatus(s){
+  vatState.status=s;vatState.vatResult=null;vatLast=null;
+  document.querySelectorAll('.status-btn').forEach(b=>b.classList.remove('active'));
   document.querySelector(`.status-btn[data-status="${s}"]`).classList.add('active');
-  document.querySelectorAll('.vat-btn').forEach(b => b.classList.remove('active'));
- 
-  if (s === 'b2b') {
-    document.getElementById('vat-verify-section').style.display = 'block';
-    clearResult();
-  } else {
-    document.getElementById('vat-verify-section').style.display = 'none';
-    if (state.euCountry) showResult('eu_b2c');
-    else clearResult();
-  }
+  document.querySelectorAll('.vat-btn').forEach(b=>b.classList.remove('active'));
+  if(s==='b2b'){el('vat-verify-section').style.display='block';clearVatResult();}
+  else{el('vat-verify-section').style.display='none';if(vatState.euCountry)showVatResult('eu_b2c');else clearVatResult();}
 }
- 
-function selectVatResult(r) {
-  state.vatResult = r;
-  document.querySelectorAll('.vat-btn').forEach(b => b.classList.remove('active'));
+function selectVatResult(r){
+  vatState.vatResult=r;
+  document.querySelectorAll('.vat-btn').forEach(b=>b.classList.remove('active'));
   document.querySelector(`.vat-btn.${r}`).classList.add('active');
- 
-  if (r === 'valid') showResult('eu_b2b_valid');
-  else showResult('eu_b2b_invalid');
+  showVatResult(r==='valid'?'eu_b2b_valid':'eu_b2b_invalid');
 }
- 
-function clearResult() {
-  lastScenario = null;
-  const card = document.getElementById('result-card');
-  card.classList.remove('has-result');
-  document.getElementById('result-icon').textContent = 'ℹ️';
-  document.getElementById('result-title').textContent = t('resultTitle');
-  document.getElementById('placeholder').style.display = 'block';
-  document.getElementById('result-content').style.display = 'none';
+function clearVatResult(){
+  vatLast=null; el('vat-result-card').classList.remove('has-result');
+  el('vat-result-icon').textContent='ℹ️'; el('vat-result-title').textContent=t('vatResultTitle');
+  el('vat-placeholder').style.display='block'; el('vat-result-content').style.display='none';
 }
- 
-function showResult(scenario) {
-  lastScenario = scenario;
-  let rate, taxName, explanation, taxToCopy;
-  const country = state.euCountry;
-  const countryInfo = EU_VAT_RATES[country];
-  const countryName = currentLang === 'en'
-    ? (countryInfo ? countryInfo.nameEn : '')
-    : (countryInfo ? countryInfo.name : '');
-  const T = TRANSLATIONS[currentLang].scenarios;
- 
-  switch(scenario) {
-    case 'be':
-      ({ rate, taxName, taxToCopy, explanation } = T.be);
-      break;
- 
-    case 'uk':
-      ({ rate, taxName, taxToCopy, explanation } = T.uk);
-      break;
- 
-    case 'ch':
-      ({ rate, taxName, taxToCopy, explanation } = T.ch);
-      break;
- 
-    case 'row':
-      ({ rate, taxName, taxToCopy, explanation } = T.row);
-      break;
- 
-    case 'eu_b2b_valid': {
-      const d = T.eu_b2b_valid(countryName);
-      rate = d.rate; taxName = d.taxName; taxToCopy = d.taxToCopy; explanation = d.explanation;
-      break;
-    }
- 
+function showVatResult(scenario){
+  vatLast=scenario;
+  let rate,taxName,explanation,taxToCopy;
+  const country=vatState.euCountry, ci=EU_VAT[country];
+  const cn=lang==='en'?(ci?ci.nameEn:''):(ci?ci.name:'');
+  const S=TR[lang].scenarios;
+  switch(scenario){
+    case 'be':({rate,taxName,taxToCopy,explanation}=S.be);break;
+    case 'uk':({rate,taxName,taxToCopy,explanation}=S.uk);break;
+    case 'ch':({rate,taxName,taxToCopy,explanation}=S.ch);break;
+    case 'row':({rate,taxName,taxToCopy,explanation}=S.row);break;
+    case 'eu_b2b_valid':{const d=S.eu_b2b_valid(cn);rate=d.rate;taxName=d.taxName;taxToCopy=d.taxToCopy;explanation=d.explanation;break;}
     case 'eu_b2b_invalid':
-      if (countryInfo && countryInfo.isExport) {
-        ({ rate, taxName, taxToCopy, explanation } = T.eu_b2b_invalid_reunion);
-      } else {
-        rate = countryInfo ? countryInfo.rate + '%' : '—';
-        taxName = countryInfo && countryInfo.taxLabel ? countryInfo.taxLabel : `VAT for EU Services to ${countryInfo ? countryInfo.nameEn : ''}`;
-        taxToCopy = taxName;
-        const d = T.eu_b2b_invalid(countryName, countryInfo ? countryInfo.rate + '%' : '—');
-        explanation = d.explanation;
-      }
+      if(ci&&ci.isExport){({rate,taxName,taxToCopy,explanation}=S.eu_b2b_invalid_reunion);}
+      else{rate=ci?ci.rate+'%':'—';taxName=ci&&ci.taxLabel?ci.taxLabel:`VAT for EU Services to ${ci?ci.nameEn:''}`;taxToCopy=taxName;explanation=S.eu_b2b_invalid(cn,ci?ci.rate+'%':'—').explanation;}
       break;
- 
     case 'eu_b2c':
-      if (!country) return clearResult();
-      if (countryInfo && countryInfo.isExport) {
-        ({ rate, taxName, taxToCopy, explanation } = T.eu_b2c_reunion);
-      } else {
-        rate = countryInfo ? countryInfo.rate + '%' : '—';
-        taxName = countryInfo && countryInfo.taxLabel ? countryInfo.taxLabel : `VAT for EU Services to ${countryInfo ? countryInfo.nameEn : ''}`;
-        taxToCopy = taxName;
-        const d = T.eu_b2c(countryName, countryInfo ? countryInfo.rate + '%' : '—');
-        explanation = d.explanation;
-      }
+      if(!country)return clearVatResult();
+      if(ci&&ci.isExport){({rate,taxName,taxToCopy,explanation}=S.eu_b2c_reunion);}
+      else{rate=ci?ci.rate+'%':'—';taxName=ci&&ci.taxLabel?ci.taxLabel:`VAT for EU Services to ${ci?ci.nameEn:''}`;taxToCopy=taxName;explanation=S.eu_b2c(cn,ci?ci.rate+'%':'—').explanation;}
       break;
+    default:return clearVatResult();
+  }
+  el('vat-result-card').classList.add('has-result');
+  el('vat-result-icon').textContent='✅'; el('vat-result-title').textContent=t('vatResultTitle');
+  el('vat-placeholder').style.display='none';
+  const c=el('vat-result-content'); c.style.display='block';
+  c.innerHTML=`<div class="tax-label">${t('taxLabel')}</div><div class="tax-rate"><span class="rate">${rate}</span><span class="name">${taxName}</span></div><div class="tax-explanation">${explanation}</div><div class="tax-action">ℹ️ ${t('actionLabel')}</div><button class="tax-copy-btn" onclick="copyTax(this,'${taxToCopy.replace(/'/g,"\\'")}')"><span class="copy-text">${taxToCopy}</span><span class="copy-icon">${t('copyBtn')}</span></button><button class="reset-btn" onclick="resetVat()">${t('newSim')}</button>`;
+}
+function copyTax(btn,text){
+  const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');btn.classList.add('copied');btn.querySelector('.copy-text').textContent=t('copiedBtn');btn.querySelector('.copy-icon').textContent='';setTimeout(()=>{btn.classList.remove('copied');btn.querySelector('.copy-text').textContent=text;btn.querySelector('.copy-icon').textContent=t('copyBtn');},2000);}catch(e){window.prompt('Copy:',text);}
+  document.body.removeChild(ta);
+}
+function resetVat(){
+  vatState={location:null,euCountry:'',status:null,vatResult:null};vatLast=null;
+  document.querySelectorAll('.loc-btn,.status-btn,.vat-btn').forEach(b=>b.classList.remove('active'));
+  el('eu-fields').style.display='none';el('eu-country').value='';
+  const _csi=el('country-search-input');if(_csi){_csi.value='';el('country-selected-flag').textContent='';el('country-clear-btn').style.display='none';closeCountryDropdown();}
+  el('vat-verify-section').style.display='none';
+  clearVatResult();highlightCountry(null);
+}
  
-    default:
-      return clearResult();
+// ── IOT ──
+function iotSelectType(type){
+  iotState.type=type;iotState.need=null;
+  document.querySelectorAll('[data-iot]').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`[data-iot="${type}"]`).classList.add('active');
+  el('iot-physical-fields').style.display=type==='physical'?'block':'none';
+  el('iot-virtual-fields').style.display=type==='virtual'?'block':'none';
+  document.querySelectorAll('.iot-need-btn').forEach(b=>b.classList.remove('active'));
+  iotClearResult();
+}
+function iotSelectNeed(need){
+  iotState.need=need;
+  document.querySelectorAll('.iot-need-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`[data-need="${need}"]`).classList.add('active');
+  iotShowResult(need);
+}
+function iotClearResult(){
+  el('iot-result-card').classList.remove('has-result');el('iot-result-icon').textContent='ℹ️';
+  el('iot-result-title').textContent=t('iotResultTitle');el('iot-placeholder').style.display='block';el('iot-result-content').style.display='none';
+}
+function iotShowResult(need){
+  const data=IOT[lang][need]; if(!data)return iotClearResult();
+  el('iot-result-card').classList.add('has-result');el('iot-result-icon').textContent='✅';
+  el('iot-result-title').textContent=t('iotResultTitle');el('iot-placeholder').style.display='none';
+  const c=el('iot-result-content');c.style.display='block';
+  let html='';
+  if(data.contacts){html+=`<div class="iot-section-title">${data.title.toUpperCase()}</div><div class="iot-contacts-grid">`;data.contacts.forEach(ct=>{html+=`<div class="iot-contact-chip"><div class="iot-contact-initials" style="background:${ct.c}">${ct.i}</div><div class="iot-contact-name">${ct.i}</div><div class="iot-contact-role">${ct.r}</div></div>`;});html+='</div>';}
+  if(data.sections){data.sections.forEach(s=>{html+=`<div class="iot-section-title">${s.label}</div>`;s.links.forEach(lk=>{html+=`<a class="iot-link-btn" href="${lk.url}" target="_blank" rel="noopener"><span class="iot-link-icon">${lk.icon}</span><span class="iot-link-label">${lk.label}</span><span class="iot-link-arrow">↗</span></a>`;});});}
+  html+=`<button class="iot-reset-btn" onclick="iotReset()">${t('iotResetBtn')}</button>`;
+  c.innerHTML=html;
+}
+function iotReset(){
+  iotState={type:null,need:null};
+  document.querySelectorAll('[data-iot],.iot-need-btn').forEach(b=>b.classList.remove('active'));
+  el('iot-physical-fields').style.display='none';el('iot-virtual-fields').style.display='none';iotClearResult();
+}
+ 
+// ── PRICING LOGIC ──
+let pricingState={topic:null, pricelist:'high', billing:'monthly'};
+ 
+const PRICING_DATA = {
+  high: {
+    monthly_fyd:  {standard:24.90, custom:37.40},
+    annual_fyd:   {standard:19.90, custom:29.90},
+    monthly_norm: {standard:31.10, custom:46.80},
+    annual_norm:  {standard:24.90, custom:37.40}
+  },
+  low: {
+    monthly_fyd:  {standard:14.80, custom:22.40},
+    annual_fyd:   {standard:11.90, custom:17.90},
+    monthly_norm: {standard:18.60, custom:28.00},
+    annual_norm:  {standard:14.90, custom:22.40}
+  }
+};
+ 
+const FREE_COMBOS = [
+  'CRM','Sales + Invoicing','Website','Website + Events','Website + E-learning',
+  'Website + Ecommerce','Website + Forum','Sales + Subscription + Invoicing',
+  'Subscription + Invoicing','Project','Field Service','Project + Field Service',
+  'Accounting + Invoicing'
+];
+ 
+function pricingSelect(topic){
+  pricingState.topic = topic;
+  document.querySelectorAll('[data-pricing]').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`[data-pricing="${topic}"]`).classList.add('active');
+  renderPricingResult();
+}
+ 
+function pricingSetPricelist(pl){
+  pricingState.pricelist = pl;
+  document.querySelectorAll('.pl-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll(`.pl-btn[data-pl="${pl}"]`).forEach(b=>b.classList.add('active'));
+  renderPricingResult();
+}
+ 
+function pricingClearResult(){
+  el('pricing-result-card').classList.remove('has-result');
+  el('pricing-result-icon').textContent='ℹ️';
+  el('pricing-result-title').textContent=lang==='fr'?'Détails':'Details';
+  el('pricing-placeholder').style.display='block';
+  el('pricing-result-content').style.display='none';
+}
+ 
+function renderPricingResult(){
+  const topic = pricingState.topic;
+  if(!topic) return pricingClearResult();
+  el('pricing-result-card').classList.add('has-result');
+  el('pricing-result-icon').textContent='✅';
+  const c = el('pricing-result-content');
+  c.style.display='block'; el('pricing-placeholder').style.display='none';
+ 
+  let html = '';
+  const pl = pricingState.pricelist;
+  const d = PRICING_DATA[pl];
+  const isFR = lang==='fr';
+ 
+  if(topic === 'tarifs'){
+    el('pricing-result-title').textContent = isFR?'Tarifs & Licences':'Pricing & Licences';
+    // Pricelist toggle
+    html += `<div class="pricing-toggle">
+      <button class="pricing-toggle-btn pl-btn${pl==='high'?' active':''}" data-pl="high" onclick="pricingSetPricelist('high')">🌍 Europe High</button>
+      <button class="pricing-toggle-btn pl-btn${pl==='low'?' active':''}" data-pl="low" onclick="pricingSetPricelist('low')">🌍 Europe Low</button>
+    </div>`;
+    // Table
+    html += `<table class="pricing-table">
+      <thead><tr>
+        <th>${isFR?'Plan':'Plan'}</th>
+        <th>📅 ${isFR?'Mensuel':'Monthly'} <span class="pricing-tag-fyd">FYD</span></th>
+        <th>📆 ${isFR?'Annuel':'Annual'} <span class="pricing-tag-fyd">FYD</span></th>
+        <th>📅 ${isFR?'Mensuel':'Monthly'} <span class="pricing-tag-normal">${isFR?'Normal':'Normal'}</span></th>
+        <th>📆 ${isFR?'Annuel':'Annual'} <span class="pricing-tag-normal">${isFR?'Normal':'Normal'}</span></th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td class="plan-name">Standard</td>
+          <td class="price-highlight">€${d.monthly_fyd.standard.toFixed(2)}</td>
+          <td class="price-highlight">€${d.annual_fyd.standard.toFixed(2)}</td>
+          <td class="price-normal">€${d.monthly_norm.standard.toFixed(2)}</td>
+          <td class="price-normal">€${d.annual_norm.standard.toFixed(2)}</td>
+        </tr>
+        <tr>
+          <td class="plan-name">Custom</td>
+          <td class="price-highlight">€${d.monthly_fyd.custom.toFixed(2)}</td>
+          <td class="price-highlight">€${d.annual_fyd.custom.toFixed(2)}</td>
+          <td class="price-normal">€${d.monthly_norm.custom.toFixed(2)}</td>
+          <td class="price-normal">€${d.annual_norm.custom.toFixed(2)}</td>
+        </tr>
+      </tbody>
+    </table>`;
+    // Formula
+    html += `<div class="pricing-formula">
+      <div class="pricing-formula-title">💡 ${isFR?'Formule de calcul':'Calculation formula'}</div>
+      <div class="pricing-formula-row">${isFR?'Mensuel HTVA':'Monthly excl. VAT'} = <code>prix × nb users</code></div>
+      <div class="pricing-formula-row">${isFR?'Annuel HTVA':'Annual excl. VAT'} = <code>prix × nb users × 12</code></div>
+      <div class="pricing-formula-row">${isFR?'Total TTC':'Total incl. VAT'} = <code>HTVA × (1 + taux TVA)</code></div>
+    </div>`;
+    // TVA
+    html += `<div class="iot-section-title">${isFR?'TAUX TVA PAR PAYS':'VAT RATES BY COUNTRY'}</div>`;
+    const tva = [{c:'🇧🇪',n:'Belgique',r:'21%'},{c:'🇫🇷',n:'France',r:'20%'},{c:'🇩🇪',n:'Allemagne',r:'19%'},{c:'🇳🇱',n:'Pays-Bas',r:'21%'},{c:'🇵🇱',n:'Pologne',r:'23%'}];
+    html += `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;">`;
+    tva.forEach(t=>{ html+=`<div class="iot-contact-chip" style="flex-direction:row;gap:8px;padding:8px 10px;"><span style="font-size:18px;">${t.c}</span><div><div class="iot-contact-name" style="font-size:12px;">${t.n}</div><div class="iot-contact-role" style="font-size:13px;color:#FFD166;font-weight:700;">${t.r}</div></div></div>`; });
+    html += `</div>`;
+    // Warnings
+ 
+    html += `<a class="iot-link-btn" href="https://www.odoo.com/pricing" target="_blank" rel="noopener"><span class="iot-link-icon">🔗</span><span class="iot-link-label">Odoo Pricing</span><span class="iot-link-arrow">↗</span></a>`;
+ 
+  } else if(topic === 'plans'){
+    el('pricing-result-title').textContent = isFR?'Plans Standard & Custom':'Standard & Custom Plans';
+    html += `<div class="iot-section-title">${isFR?'DIFFÉRENCES CLÉS':'KEY DIFFERENCES'}</div>`;
+    html += `<div class="user-type-grid">
+      <div class="user-type-card"><div class="user-type-icon">📋</div><div>
+        <div class="user-type-name">Standard</div>
+        <div class="user-type-desc">${isFR?'Accès aux apps standard Odoo. Pas de Studio, pas d\'API, pas de code custom. Hébergement Online uniquement.':'Access to standard Odoo apps. No Studio, no API, no custom code. Online hosting only.'}</div>
+      </div></div>
+      <div class="user-type-card"><div class="user-type-icon">⚙️</div><div>
+        <div class="user-type-name">Custom</div>
+        <div class="user-type-desc">${isFR?'Studio, API, code personnalisé, multi-société. Obligatoire pour Odoo.sh et On-Premise.':'Studio, API, custom code, multi-company. Mandatory for Odoo.sh and On-Premise.'}</div>
+      </div></div>
+    </div>`;
+    html += `<div class="iot-section-title" style="margin-top:18px;">${isFR?'CE QUI NÉCESSITE CUSTOM':'WHAT REQUIRES CUSTOM'}</div>`;
+    const requires = isFR
+      ? ['Studio installé','Base Automation installée','Code custom (lignes de code)','Multi-société activée','Accès API','Odoo.sh ou On-Premise']
+      : ['Studio installed','Base Automation installed','Custom code (lines of code)','Multi-company activated','API access','Odoo.sh or On-Premise'];
+    requires.forEach(r=>{ html+=`<div class="elig-row warn" style="margin-bottom:6px;"><span class="elig-status">⚠️</span><span class="elig-text">${r}</span></div>`; });
+    html += `<div class="pricing-warn"><span style="font-size:18px;flex-shrink:0;">📅</span><div>${isFR?'<strong>Mensuel :</strong> changements à la prochaine facture, pas de prorata.<br><strong>Annuel :</strong> ajout = prorata immédiat, suppression = au prochain renouvellement.':'<strong>Monthly:</strong> changes at next invoice, no prorata.<br><strong>Annual:</strong> add = immediate prorata, removal = at next renewal.'}</div></div>`;
+    html += `<a class="iot-link-btn" href="https://www.odoo.com/pricing" target="_blank" rel="noopener"><span class="iot-link-icon">🔗</span><span class="iot-link-label">Odoo Pricing</span><span class="iot-link-arrow">↗</span></a>`;
+ 
+  } else if(topic === 'users'){
+    el('pricing-result-title').textContent = isFR?'Types d\'utilisateurs':'User Types';
+    html += `<div class="user-type-grid">
+      <div class="user-type-card"><div class="user-type-icon">👤</div><div>
+        <div class="user-type-name">${isFR?'Utilisateur Payant':'Paid User'}</div>
+        <span class="user-type-tag tag-paid">${isFR?'FACTURÉ':'BILLED'}</span>
+        <div class="user-type-desc" style="margin-top:6px;">${isFR?'Accès complet au backend Odoo. Compte dans la facturation.':'Full access to Odoo backend. Counted in billing.'}</div>
+      </div></div>
+      <div class="user-type-card"><div class="user-type-icon">🌐</div><div>
+        <div class="user-type-name">${isFR?'Utilisateur Portail':'Portal User'}</div>
+        <span class="user-type-tag tag-free">GRATUIT / FREE</span>
+        <div class="user-type-desc" style="margin-top:6px;">${isFR?'Accès externe limité (ex: voir ses factures, commandes). Ne compte PAS dans la facturation.':'Limited external access (e.g. view invoices, orders). NOT counted in billing.'}</div>
+      </div></div>
+      <div class="user-type-card"><div class="user-type-icon">🛒</div><div>
+        <div class="user-type-name">POS Employee</div>
+        <span class="user-type-tag tag-free">GRATUIT / FREE</span>
+        <div class="user-type-desc" style="margin-top:6px;">${isFR?'Accès Point de Vente uniquement via "Login with Employees". Ne compte PAS dans la facturation.':'Point of Sale access only via "Login with Employees". NOT counted in billing.'}</div>
+      </div></div>
+    </div>`;
+    html += `<div class="iot-section-title" style="margin-top:18px;">${isFR?'PROCÉDURE':'PROCEDURE'}</div>`;
+    html += `<a class="iot-link-btn" href="https://app.tango.us/app/workflow/How-to-remove-a-user-62c57d736bbf40bfa902782589a1969a" target="_blank" rel="noopener"><span class="iot-link-icon">📋</span><span class="iot-link-label">${isFR?'Archiver un utilisateur (Tango)':'Archive a user (Tango)'}</span><span class="iot-link-arrow">↗</span></a>`;
+ 
+  } else if(topic === 'free'){
+    el('pricing-result-title').textContent = isFR?'Version gratuite (One App Free)':'Free Version (One App Free)';
+ 
+    html += `<div class="iot-section-title">${isFR?'COMBINAISONS VALIDES (1 seule ligne)':'VALID COMBINATIONS (1 line only)'}</div>`;
+    html += `<div class="combo-grid">`;
+    FREE_COMBOS.forEach(c=>{ html+=`<div class="combo-item">✅ ${c}</div>`; });
+    html += `</div>`;
+    html += `<div class="iot-section-title" style="margin-top:18px;">${isFR?'CONSÉQUENCES':'CONSEQUENCES'}</div>`;
+    const cons = isFR
+      ? ['Le support technique prend fin','Se connecter tous les 2-3 mois pour maintenir la base active','L\'abonnement payant se ferme automatiquement']
+      : ['Technical support ends','Must log in every 2-3 months to keep the database active','Paid subscription closes automatically'];
+    cons.forEach(c=>{ html+=`<div class="elig-row warn" style="margin-bottom:6px;"><span class="elig-status">ℹ️</span><span class="elig-text">${c}</span></div>`; });
+    html += `<div class="iot-section-title" style="margin-top:18px;">${isFR?'PROCÉDURE':'PROCEDURE'}</div>`;
+    const steps = isFR
+      ? ['Se connecter en tant qu\'administrateur','Cliquer sur l\'icône utilisateur → My subscription','Cliquer sur "Change"','Désinstaller les applications non incluses dans la combinaison choisie']
+      : ['Log in as administrator','Click user icon → My subscription','Click "Change"','Uninstall applications not included in the chosen combination'];
+    steps.forEach((s,i)=>{ html+=`<div class="elig-row ok" style="margin-bottom:6px;"><span class="elig-status" style="font-size:14px;font-weight:700;min-width:24px;">${i+1}.</span><span class="elig-text">${s}</span></div>`; });
   }
  
-  const card = document.getElementById('result-card');
-  card.classList.add('has-result');
-  document.getElementById('result-icon').textContent = '✅';
-  document.getElementById('result-title').textContent = t('resultTitle');
-  document.getElementById('placeholder').style.display = 'none';
- 
-  const content = document.getElementById('result-content');
-  content.style.display = 'block';
-  content.innerHTML = `
-    <div class="tax-label">${t('taxLabelText')}</div>
-    <div class="tax-rate">
-      <span class="rate">${rate}</span>
-      <span class="name">${taxName}</span>
-    </div>
-    <div class="tax-explanation">${explanation}</div>
-    <div class="tax-action">
-      <span class="action-icon">ℹ️</span>
-      <div>
-        <div class="action-label">${t('actionLabel')}</div>
-      </div>
-    </div>
-    <button class="tax-copy-btn" onclick="copyTax(this, '${taxToCopy.replace(/'/g, "\\'")}')">
-      <span class="copy-text">${taxToCopy}</span>
-      <span class="copy-icon">${t('copyBtnText')}</span>
-    </button>
-    <button class="reset-btn" onclick="resetAll()">${t('newSimulation')}</button>
-  `;
+  c.innerHTML = html;
 }
  
-function copyTax(btn, text) {
-  const textarea = document.createElement('textarea');
-  textarea.value = text;
-  textarea.style.position = 'fixed';
-  textarea.style.opacity = '0';
-  document.body.appendChild(textarea);
-  textarea.select();
+function pricingReset(){
+  pricingState = {topic:null, pricelist:'high', billing:'monthly'};
+  document.querySelectorAll('[data-pricing]').forEach(b=>b.classList.remove('active'));
+  pricingClearResult();
+}
+ 
+// ── RECOVERY LOGIC ──
+let recoveryState = {type:null, plan:null, pricelist:'high', users:1};
+ 
+// Set today's date as default
+window.addEventListener('DOMContentLoaded', ()=>{
+  const today = new Date().toISOString().split('T')[0];
+  const todayInput = el('recovery-today-date');
+  if(todayInput) todayInput.value = today;
+});
+ 
+function recoverySelect(type){
+  recoveryState.type = type;
+  document.querySelectorAll('[data-recovery]').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`[data-recovery="${type}"]`).classList.add('active');
+  el('recovery-fields').style.display = 'block';
+  calcRecovery();
+}
+ 
+function recoverySetPlan(plan){
+  recoveryState.plan = plan;
+  document.querySelectorAll('[data-rec-plan]').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`[data-rec-plan="${plan}"]`).classList.add('active');
+  calcRecovery();
+}
+ 
+function recoverySetPl(pl){
+  recoveryState.pricelist = pl;
+  document.querySelectorAll('[data-rec-pl]').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`[data-rec-pl="${pl}"]`).classList.add('active');
+  calcRecovery();
+}
+ 
+function calcRecovery(){
+  const {type} = recoveryState;
+  const day   = parseInt(el('rec-day').value);
+  const month = el('rec-month').value;
+  const year  = parseInt(el('rec-year').value);
+  const isFR  = lang === 'fr';
+ 
+  if(!type || !day || month==='' || !year) return recoveryClearResult();
+ 
+  const MONTHS_FR = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  const MONTHS_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const formatDate = d => `${d.getDate()} ${isFR ? MONTHS_FR[d.getMonth()] : MONTHS_EN[d.getMonth()]} ${d.getFullYear()}`;
+ 
+  const renewal = new Date(year, parseInt(month), day);
+  const today   = new Date(); today.setHours(0,0,0,0);
+ 
+  if(today <= renewal) return recoveryClearResult();
+ 
+  const diffDays = Math.floor((today - renewal) / (1000*60*60*24));
+  const over3months = diffDays > 92;
+ 
+  // Build periods starting the day AFTER renewal date
+  let periods = [];
+  if(type === 'monthly'){
+    let start = new Date(year, parseInt(month), day + 1);
+    while(start <= today){
+      const end = new Date(start.getFullYear(), start.getMonth() + 1, start.getDate() - 1);
+      periods.push(`• ${isFR?'du':'from'} ${formatDate(start)} ${isFR?'au':'to'} ${formatDate(end)}`);
+      start = new Date(start.getFullYear(), start.getMonth() + 1, start.getDate());
+    }
+  } else {
+    const start = new Date(year, parseInt(month), day + 1);
+    const end   = new Date(year + 1, parseInt(month), day);
+    periods.push(`• ${isFR?'du':'from'} ${formatDate(start)} ${isFR?'au':'to'} ${formatDate(end)}`);
+  }
+ 
+  el('recovery-result-card').classList.add('has-result');
+  el('recovery-result-icon').textContent = '✅';
+  el('recovery-result-title').textContent = isFR ? 'Périodes dues' : 'Periods due';
+  el('recovery-placeholder').style.display = 'none';
+  const c = el('recovery-result-content');
+  c.style.display = 'block';
+ 
+  let html = '';
+ 
+  if(over3months){
+    html += `<div class="recovery-warn"><span style="font-size:18px;flex-shrink:0;">⚠️</span><div><strong>${isFR?'Rétention dépassée (> 3 mois)':'Retention exceeded (> 3 months)'}</strong><br>${isFR?'Contacter le support avant de procéder à la réouverture.':'Contact support before proceeding with recovery.'}</div></div>`;
+    html += `<a class="iot-link-btn" href="https://www.odoo.com/help" target="_blank" rel="noopener" style="margin-bottom:14px;"><span class="iot-link-icon">🆘</span><span class="iot-link-label">${isFR?'Contacter le support Odoo':'Contact Odoo support'}</span><span class="iot-link-arrow">↗</span></a>`;
+  }
+ 
+  const copyText = periods.join('\n');
+ 
+  html += `<div class="recovery-periods-block">${periods.map(p=>`<div class="recovery-bullet-line">${p}</div>`).join('')}</div>`;
+ 
+  html += `<button class="tax-copy-btn" style="margin-top:12px;" onclick="copyRecovery(this, \`${copyText.replace(/`/g,'\\`').replace(/\$/g,'\\$')}\`)">
+    <span class="copy-text">📋 ${isFR?'Copier les périodes':'Copy periods'}</span>
+    <span class="copy-icon" style="opacity:0.6;font-size:14px;">↗</span>
+  </button>`;
+ 
+  c.innerHTML = html;
+}
+ 
+function copyRecovery(btn, text){
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
   try {
     document.execCommand('copy');
-    btn.classList.add('copied');
-    btn.querySelector('.copy-text').textContent = t('copiedText');
-    btn.querySelector('.copy-icon').textContent = '';
-    setTimeout(() => {
-      btn.classList.remove('copied');
-      btn.querySelector('.copy-text').textContent = text;
-      btn.querySelector('.copy-icon').textContent = t('copyBtnText');
-    }, 2000);
-  } catch(e) {
-    window.prompt(currentLang === 'fr' ? 'Copiez cette taxe :' : 'Copy this tax:', text);
-  }
-  document.body.removeChild(textarea);
+    btn.querySelector('.copy-text').textContent = lang==='fr' ? '✅ Copié !' : '✅ Copied!';
+    setTimeout(()=>{ btn.querySelector('.copy-text').textContent = `📋 ${lang==='fr'?'Copier les périodes':'Copy periods'}`; }, 2000);
+  } catch(e){ window.prompt('Copy:', text); }
+  document.body.removeChild(ta);
 }
  
-function resetAll() {
-  state = { location: null, euCountry: '', status: null, vatResult: null };
-  lastScenario = null;
-  document.querySelectorAll('.loc-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.vat-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('eu-fields').style.display = 'none';
-  document.getElementById('eu-country').value = '';
-  document.getElementById('vat-verify-section').style.display = 'none';
-  clearResult();
+function recoveryClearResult(){
+  el('recovery-result-card').classList.remove('has-result');
+  el('recovery-result-icon').textContent='ℹ️';
+  el('recovery-result-title').textContent=lang==='fr'?'Calcul de réouverture':'Recovery Calculation';
+  el('recovery-placeholder').style.display='block';
+  el('recovery-result-content').style.display='none';
+}
+ 
+function recoveryReset(){
+  recoveryState={type:null, plan:null, pricelist:'high', users:1};
+  document.querySelectorAll('[data-recovery]').forEach(b=>b.classList.remove('active'));
+  el('rec-day').value=''; el('rec-month').value=''; el('rec-year').value='2025';
+  el('recovery-fields').style.display='none';
+  recoveryClearResult();
+}
+ 
+ 
+ 
+// ── COUNTRY SEARCH ──
+const EU_COUNTRIES = [
+  {code:'DE',flag:'🇩🇪',fr:'Allemagne',en:'Germany'},
+  {code:'AT',flag:'🇦🇹',fr:'Autriche',en:'Austria'},
+  {code:'BG',flag:'🇧🇬',fr:'Bulgarie',en:'Bulgaria'},
+  {code:'HR',flag:'🇭🇷',fr:'Croatie',en:'Croatia'},
+  {code:'CY',flag:'🇨🇾',fr:'Chypre',en:'Cyprus'},
+  {code:'DK',flag:'🇩🇰',fr:'Danemark',en:'Denmark'},
+  {code:'ES',flag:'🇪🇸',fr:'Espagne',en:'Spain'},
+  {code:'EE',flag:'🇪🇪',fr:'Estonie',en:'Estonia'},
+  {code:'FI',flag:'🇫🇮',fr:'Finlande',en:'Finland'},
+  {code:'FR',flag:'🇫🇷',fr:'France',en:'France'},
+  {code:'GR',flag:'🇬🇷',fr:'Grèce',en:'Greece'},
+  {code:'HU',flag:'🇭🇺',fr:'Hongrie',en:'Hungary'},
+  {code:'IE',flag:'🇮🇪',fr:'Irlande',en:'Ireland'},
+  {code:'IT',flag:'🇮🇹',fr:'Italie',en:'Italy'},
+  {code:'LV',flag:'🇱🇻',fr:'Lettonie',en:'Latvia'},
+  {code:'LT',flag:'🇱🇹',fr:'Lituanie',en:'Lithuania'},
+  {code:'LU',flag:'🇱🇺',fr:'Luxembourg',en:'Luxembourg'},
+  {code:'MT',flag:'🇲🇹',fr:'Malte',en:'Malta'},
+  {code:'NL',flag:'🇳🇱',fr:'Pays-Bas',en:'Netherlands'},
+  {code:'PL',flag:'🇵🇱',fr:'Pologne',en:'Poland'},
+  {code:'PT',flag:'🇵🇹',fr:'Portugal',en:'Portugal'},
+  {code:'CZ',flag:'🇨🇿',fr:'République tchèque',en:'Czech Republic'},
+  {code:'RO',flag:'🇷🇴',fr:'Roumanie',en:'Romania'},
+  {code:'RE',flag:'🇷🇪',fr:'Réunion',en:'Réunion'},
+  {code:'SK',flag:'🇸🇰',fr:'Slovaquie',en:'Slovakia'},
+  {code:'SI',flag:'🇸🇮',fr:'Slovénie',en:'Slovenia'},
+  {code:'SE',flag:'🇸🇪',fr:'Suède',en:'Sweden'},
+];
+ 
+let csHighlight = -1;
+ 
+function countrySearchInput(val){
+  const q = val.trim().toLowerCase();
+  el('country-clear-btn').style.display = val ? 'block' : 'none';
+  el('country-selected-flag').textContent = '';
+  el('eu-country').value = '';
+  csHighlight = -1;
+  if(!q){ closeCountryDropdown(); return; }
+  const filtered = EU_COUNTRIES.filter(c =>
+    c.fr.toLowerCase().includes(q) || c.en.toLowerCase().includes(q) || c.code.toLowerCase() === q
+  );
+  renderCountryDropdown(filtered);
+}
+ 
+function countrySearchFocus(){
+  const val = el('country-search-input').value.trim();
+  if(val) countrySearchInput(val);
+}
+ 
+function countrySearchKey(e){
+  const dd = el('country-dropdown');
+  const opts = dd.querySelectorAll('.country-option');
+  if(e.key === 'ArrowDown'){ e.preventDefault(); csHighlight = Math.min(csHighlight+1, opts.length-1); highlightOption(opts); }
+  else if(e.key === 'ArrowUp'){ e.preventDefault(); csHighlight = Math.max(csHighlight-1, 0); highlightOption(opts); }
+  else if(e.key === 'Enter'){ e.preventDefault(); if(csHighlight>=0 && opts[csHighlight]) opts[csHighlight].click(); }
+  else if(e.key === 'Escape'){ closeCountryDropdown(); }
+}
+ 
+function highlightOption(opts){
+  opts.forEach((o,i) => o.classList.toggle('highlighted', i===csHighlight));
+  if(opts[csHighlight]) opts[csHighlight].scrollIntoView({block:'nearest'});
+}
+ 
+function renderCountryDropdown(list){
+  const dd = el('country-dropdown');
+  const selectedCode = el('eu-country').value;
+  if(!list.length){
+    dd.innerHTML = `<div class="country-no-result">${lang==='fr'?'Aucun résultat':'No results'}</div>`;
+  } else {
+    dd.innerHTML = list.map(c => {
+      const name = lang==='fr' ? c.fr : c.en;
+      const sub  = lang==='fr' ? c.en : c.fr;
+      return `<div class="country-option${c.code===selectedCode?' selected':''}" onclick="selectCountryOption('${c.code}')">
+        <span class="country-option-flag">${c.flag}</span>
+        <span class="country-option-name">${name}</span>
+        <span class="country-option-sub">${sub}</span>
+      </div>`;
+    }).join('');
+  }
+  dd.style.display = 'block';
+}
+ 
+function selectCountryOption(code){
+  const c = EU_COUNTRIES.find(x=>x.code===code);
+  if(!c) return;
+  el('eu-country').value = code;
+  el('country-search-input').value = lang==='fr' ? c.fr : c.en;
+  el('country-selected-flag').textContent = c.flag;
+  el('country-clear-btn').style.display = 'block';
+  closeCountryDropdown();
+  onEuCountryChange();
+}
+ 
+function closeCountryDropdown(){
+  el('country-dropdown').style.display = 'none';
+  csHighlight = -1;
+}
+ 
+function countrySearchClear(){
+  el('country-search-input').value = '';
+  el('country-selected-flag').textContent = '';
+  el('country-clear-btn').style.display = 'none';
+  el('eu-country').value = '';
+  closeCountryDropdown();
+  // reset VAT state
+  vatState.euCountry='';
+  document.querySelectorAll('.status-btn').forEach(b=>b.classList.remove('active'));
+  el('vat-verify-section').style.display='none';
+  document.querySelectorAll('.vat-btn').forEach(b=>b.classList.remove('active'));
+  clearVatResult();
   highlightCountry(null);
 }
  
-// =============================================
-// 3D EUROPE GLOBE — Canvas rendering
-// =============================================
-const canvas = document.getElementById('earthCanvas');
-const ctx = canvas.getContext('2d');
-let W, H, time = 0, highlightedCountry = null, geoData = null;
-const stars = Array.from({length:180}, () => ({x:Math.random(),y:Math.random(),s:Math.random()*1.2+0.3,b:Math.random()*0.4+0.15,sp:Math.random()*0.003+0.001}));
+// Close on outside click
+document.addEventListener('click', function(e){
+  const wrap = el('country-search-wrap');
+  if(wrap && !wrap.contains(e.target)) closeCountryDropdown();
+});
  
-function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
-resize(); window.addEventListener('resize', resize);
  
-fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
-  .then(r => r.json()).then(topo => { geoData = decodeTopo(topo); animate(); })
-  .catch(() => animate());
+const HOSTING={
+fr:{
+  saas:{
+    title:'Odoo Cloud (SaaS)',
+    warning:null,
+    rows:[
+      {icon:'💰',label:'Coût hébergement',value:'<span class="tag">Gratuit</span>'},
+      {icon:'⚠️',label:'Maintenance développement',value:'<strong>Obligatoire</strong> — <span class="tag tag-warn">16€ / 100 lignes de code / mois</span>'},
+      {icon:'📦',label:'Abonnements disponibles',value:'<strong>Standard</strong> — pas de Studio ni d\'API<br><strong>Personnalisé</strong> — Studio et API inclus'},
+      {icon:'🔒',label:'Limitations',value:'Développements via Studio uniquement. Si +10h de développement → passage sur Odoo.sh obligatoire. Tous les dévs sur le site web → passage sur Odoo.sh.'},
+      {icon:'🔄',label:'Versions autorisées',value:'Dernière version en cours (minor versions autorisées : 18.2, 19.3…)'},
+      {icon:'✅',label:'Recommandé pour',value:'Entreprises sans besoin de personnalisation poussée · Utilisateurs sans expertise technique · Clients sans partenaire dédié'},
+      {icon:'🔗',label:'Liens utiles',links:[{label:'Comment choisir votre type d\'hébergement',url:'https://www.odoo.com/fr_FR/blog/business-hacks-1/odoo-online-odoo-sh-on-premise-quelle-est-la-meilleure-solution-pour-vous-593'},{label:'Créer une DB en version majeure',url:'https://www.odoo.com/fr_FR/trial?lts=1'}]}
+    ]
+  },
+  sh:{
+    title:'Odoo.sh (PaaS)',
+    warning:null,
+    rows:[
+      {icon:'💰',label:'Coût hébergement',value:'<span class="tag tag-warn">Payant</span> — basé sur workers, stockage et branches de staging'},
+      {icon:'⚠️',label:'Maintenance développement',value:'<strong>Obligatoire</strong> — <span class="tag tag-warn">16€ / 100 lignes de code / mois</span><br><em>(peut être pris en charge par un partenaire)</em>'},
+      {icon:'🛠️',label:'Personnalisation',value:'Tous les dévs modifient le code standard d\'Odoo. Plus stable. Permet modules tiers, tests sur duplicates, intégration GitHub.'},
+      {icon:'🔄',label:'Versions autorisées',value:'Les 6 dernières versions. Version ancienne possible avec frais supplémentaires (3× le prix mensuel d\'hébergement).<br><br>Dates de fin de support :<br>· v14 → 31/10/2026 · v15 → 31/10/2027<br>· v16 → 31/10/2028 · v17 → 31/10/2029<br>· v18 → 31/10/2030 · v19 → 31/10/2031'},
+      {icon:'💾',label:'Sauvegardes',value:'14 sauvegardes automatiques : 1/jour pendant 7j, 1/semaine pendant 4 semaines, 1/mois pendant 3 mois. Stockage progressif.'},
+      {icon:'✅',label:'Recommandé pour',value:'Entreprises nécessitant des personnalisations · Clients avec connaissances techniques · Environnement évolutif et sécurisé'},
+      {icon:'🔗',label:'Liens utiles',links:[{label:'Odoo.sh — Présentation',url:'https://www.odoo.sh'},{label:'Odoo.sh — Tarifs',url:'https://www.odoo.sh/pricing'},{label:'Odoo.sh — Sécurité',url:'https://www.odoo.com/documentation'}]}
+    ]
+  },
+  onprem:{
+    title:'On Premise',
+    warning:'La base de données du client n\'est pas hébergée chez Odoo. Hébergement indépendant : chez le partenaire, le client, ou un concurrent (ex: Amazon AWS).',
+    rows:[
+      {icon:'💰',label:'Coût hébergement',value:'<span class="tag tag-red">Payant</span> — dépend de l\'hébergement choisi par le client/partenaire'},
+      {icon:'⚠️',label:'Maintenance développement',value:'<strong>Obligatoire</strong> — <span class="tag tag-warn">16€ / 100 lignes de code / mois</span><br><em>(peut être pris en charge par un partenaire)</em>'},
+      {icon:'🔓',label:'Personnalisation',value:'Possibilités illimitées. Nécessite des connaissances techniques avancées. Responsabilité totale du client / partenaire pour l\'installation, la maintenance et le dépannage.'},
+      {icon:'🔄',label:'Versions autorisées',value:'Toutes les versions (aucune restriction ni obligation de mise à jour)'},
+      {icon:'✅',label:'Recommandé pour',value:'Clients avec expertise technique avancée · Besoins de personnalisation totale · Entreprises gérant leur propre infrastructure'},
+      {icon:'🔗',label:'Liens utiles',links:[{label:'Comment choisir votre type d\'hébergement',url:'https://www.odoo.com/fr_FR/blog/business-hacks-1/odoo-online-odoo-sh-on-premise-quelle-est-la-meilleure-solution-pour-vous-593'}]}
+    ]
+  }
+},
+en:{
+  saas:{
+    title:'Odoo Cloud (SaaS)',
+    warning:null,
+    rows:[
+      {icon:'💰',label:'Hosting cost',value:'<span class="tag">Free</span>'},
+      {icon:'⚠️',label:'Development maintenance',value:'<strong>Mandatory</strong> — <span class="tag tag-warn">16€ / 100 lines of code / month</span>'},
+      {icon:'📦',label:'Available subscriptions',value:'<strong>Standard</strong> — no Studio or API<br><strong>Custom</strong> — Studio and API included'},
+      {icon:'🔒',label:'Limitations',value:'Development via Studio only. If +10h of development → switch to Odoo.sh mandatory. All website dev → switch to Odoo.sh.'},
+      {icon:'🔄',label:'Allowed versions',value:'Latest version (minor versions allowed: 18.2, 19.3…)'},
+      {icon:'✅',label:'Recommended for',value:'Companies without heavy customization needs · Users without technical expertise · Clients without a dedicated partner'},
+      {icon:'🔗',label:'Useful links',links:[{label:'How to choose your hosting type',url:'https://www.odoo.com/fr_FR/blog/business-hacks-1/odoo-online-odoo-sh-on-premise-quelle-est-la-meilleure-solution-pour-vous-593'},{label:'Create a DB on major version',url:'https://www.odoo.com/fr_FR/trial?lts=1'}]}
+    ]
+  },
+  sh:{
+    title:'Odoo.sh (PaaS)',
+    warning:null,
+    rows:[
+      {icon:'💰',label:'Hosting cost',value:'<span class="tag tag-warn">Paid</span> — based on workers, storage and staging branches'},
+      {icon:'⚠️',label:'Development maintenance',value:'<strong>Mandatory</strong> — <span class="tag tag-warn">16€ / 100 lines of code / month</span><br><em>(can be covered by a partner)</em>'},
+      {icon:'🛠️',label:'Customization',value:'All dev modifies standard Odoo code. More stable. Allows third-party modules, tests on duplicates, GitHub integration.'},
+      {icon:'🔄',label:'Allowed versions',value:'Last 6 versions. Older version possible with extra fee (3× monthly hosting price).<br><br>End of support dates:<br>· v14 → 31/10/2026 · v15 → 31/10/2027<br>· v16 → 31/10/2028 · v17 → 31/10/2029<br>· v18 → 31/10/2030 · v19 → 31/10/2031'},
+      {icon:'💾',label:'Backups',value:'14 automatic backups: 1/day for 7 days, 1/week for 4 weeks, 1/month for 3 months. Progressive storage.'},
+      {icon:'✅',label:'Recommended for',value:'Companies needing customizations · Clients with technical knowledge · Scalable and secure environment'},
+      {icon:'🔗',label:'Useful links',links:[{label:'Odoo.sh — Overview',url:'https://www.odoo.sh'},{label:'Odoo.sh — Pricing',url:'https://www.odoo.sh/pricing'},{label:'Odoo.sh — Security',url:'https://www.odoo.com/documentation'}]}
+    ]
+  },
+  onprem:{
+    title:'On Premise',
+    warning:"The client's database is not hosted with Odoo. Independent hosting: by the partner, the client, or a competitor (e.g. Amazon AWS).",
+    rows:[
+      {icon:'💰',label:'Hosting cost',value:'<span class="tag tag-red">Paid</span> — depends on hosting chosen by client/partner'},
+      {icon:'⚠️',label:'Development maintenance',value:'<strong>Mandatory</strong> — <span class="tag tag-warn">16€ / 100 lines of code / month</span><br><em>(can be covered by a partner)</em>'},
+      {icon:'🔓',label:'Customization',value:'Unlimited possibilities. Requires advanced technical knowledge. Full responsibility of client / partner for installation, maintenance and troubleshooting.'},
+      {icon:'🔄',label:'Allowed versions',value:'Any version (no restriction or obligation to upgrade)'},
+      {icon:'✅',label:'Recommended for',value:'Clients with advanced technical expertise · Full customization needs · Companies managing their own infrastructure'},
+      {icon:'🔗',label:'Useful links',links:[{label:'How to choose your hosting type',url:'https://www.odoo.com/fr_FR/blog/business-hacks-1/odoo-online-odoo-sh-on-premise-quelle-est-la-meilleure-solution-pour-vous-593'}]}
+    ]
+  }
+}};
  
-function decodeTopo(topo) {
-  const arcs = topo.arcs, sc = topo.transform.scale, tr = topo.transform.translate;
-  const da = arcs.map(a => { let x=0,y=0; return a.map(p => { x+=p[0];y+=p[1]; return [x*sc[0]+tr[0],y*sc[1]+tr[1]]; }); });
-  const iso = {'56':'BE','276':'DE','250':'FR','826':'GB','380':'IT','724':'ES','620':'PT','528':'NL','442':'LU','756':'CH','40':'AT','208':'DK','752':'SE','246':'FI','372':'IE','616':'PL','203':'CZ','703':'SK','348':'HU','642':'RO','100':'BG','300':'GR','191':'HR','705':'SI','233':'EE','428':'LV','440':'LT','196':'CY','470':'MT','578':'NO','804':'UA','112':'BY','643':'RU','688':'RS','70':'BA','499':'ME','807':'MK','8':'AL','498':'MD','792':'TR','788':'TN','12':'DZ','504':'MA','434':'LY','818':'EG'};
-  const ra = i => i >= 0 ? da[i] : [...da[~i]].reverse();
-  const feats = [];
-  topo.objects.countries.geometries.forEach(g => {
-    const rings = [];
-    const proc = refs => { let c=[]; refs.forEach(i => c=c.concat(ra(i))); rings.push(c); };
-    if (g.type==='Polygon') g.arcs.forEach(proc);
-    else if (g.type==='MultiPolygon') g.arcs.forEach(p => p.forEach(proc));
-    feats.push({ iso: iso[String(g.id)]||null, rings });
+// ── HOSTING LOGIC ──
+let hostingState={type:null};
+function hostingSelect(type){
+  hostingState.type=type;
+  document.querySelectorAll('[data-hosting]').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`[data-hosting="${type}"]`).classList.add('active');
+  hostingShowResult(type);
+}
+function hostingClearResult(){
+  el('hosting-result-card').classList.remove('has-result');
+  el('hosting-result-icon').textContent='ℹ️';
+  el('hosting-result-title').textContent=t('hostingResultTitle');
+  el('hosting-placeholder').style.display='block';
+  el('hosting-result-content').style.display='none';
+}
+function hostingShowResult(type){
+  const data=HOSTING[lang][type]; if(!data)return hostingClearResult();
+  el('hosting-result-card').classList.add('has-result');
+  el('hosting-result-icon').textContent='✅';
+  el('hosting-result-title').textContent=data.title;
+  el('hosting-placeholder').style.display='none';
+  const c=el('hosting-result-content'); c.style.display='block';
+  let html='';
+  if(data.warning){html+=`<div class="hosting-warning"><span style="font-size:18px;flex-shrink:0;">ℹ️</span><span>${data.warning}</span></div>`;}
+  data.rows.forEach(row=>{
+    if(row.links){
+      html+=`<div class="hosting-info-row"><span class="hosting-info-icon">${row.icon}</span><div><div class="hosting-info-label">${row.label}</div>`;
+      row.links.forEach(lk=>{html+=`<a class="iot-link-btn" href="${lk.url}" target="_blank" rel="noopener" style="margin-top:6px;"><span class="iot-link-icon">🔗</span><span class="iot-link-label">${lk.label}</span><span class="iot-link-arrow">↗</span></a>`;});
+      html+=`</div></div>`;
+    } else {
+      html+=`<div class="hosting-info-row"><span class="hosting-info-icon">${row.icon}</span><div><div class="hosting-info-label">${row.label}</div><div class="hosting-info-value">${row.value}</div></div></div>`;
+    }
   });
-  return feats;
+  html+=`<button class="hosting-reset-btn" onclick="hostingReset()">${t('hostingResetBtn')}</button>`;
+  c.innerHTML=html;
+}
+function hostingReset(){
+  hostingState={type:null};
+  document.querySelectorAll('[data-hosting]').forEach(b=>b.classList.remove('active'));
+  hostingClearResult();
 }
  
-function project(lon, lat, t) {
-  const lookLat = (44 + Math.sin(t*0.00012)*0.8) * Math.PI/180;
-  const lookLon = (8 + Math.cos(t*0.0001)*1.0) * Math.PI/180;
-  const camAz = (215 + Math.sin(t*0.00008)*2) * Math.PI/180;
-  const camEl = (32 + Math.sin(t*0.00007)*1.5) * Math.PI/180;
-  const CD = 1.25;
+// ── ELIGIBILITY ──
+let eligState={target:null,plan:null,billing:null,version:null};
  
-  const phi = lat*Math.PI/180, lam = lon*Math.PI/180;
-  const px = Math.cos(phi)*Math.cos(lam), py = Math.cos(phi)*Math.sin(lam), pz = Math.sin(phi);
-  const lx = Math.cos(lookLat)*Math.cos(lookLon), ly = Math.cos(lookLat)*Math.sin(lookLon), lz = Math.sin(lookLat);
-  const cx = lx - Math.cos(camEl)*Math.cos(camAz)*(CD-1);
-  const cy = ly - Math.cos(camEl)*Math.sin(camAz)*(CD-1);
-  const cz = lz + Math.sin(camEl)*(CD-1);
- 
-  let fx=lx-cx, fy=ly-cy, fz=lz-cz;
-  const fl=Math.sqrt(fx*fx+fy*fy+fz*fz); fx/=fl;fy/=fl;fz/=fl;
-  let rx=fy*1-fz*0, ry=fz*0-fx*1, rz=fx*0-fy*0;
-  const rl=Math.sqrt(rx*rx+ry*ry+rz*rz); rx/=rl;ry/=rl;rz/=rl;
-  let ux=ry*fz-rz*fy, uy=rz*fx-rx*fz, uz=rx*fy-ry*fx;
- 
-  const ro=Math.sin(t*0.00006)*0.025, cr=Math.cos(ro), sr=Math.sin(ro);
-  const rx2=rx*cr+ux*sr, ry2=ry*cr+uy*sr, rz2=rz*cr+uz*sr;
-  const ux2=-rx*sr+ux*cr, uy2=-ry*sr+uy*cr, uz2=-rz*sr+uz*cr;
- 
-  const dx=px-cx, dy=py-cy, dz=pz-cz;
-  const cZ=dx*fx+dy*fy+dz*fz;
-  if(cZ<0.05) return null;
-  const cX=dx*rx2+dy*ry2+dz*rz2, cY=dx*ux2+dy*uy2+dz*uz2;
- 
-  const dot=px*cx+py*cy+pz*cz;
-  const cd=Math.sqrt(cx*cx+cy*cy+cz*cz);
-  if(dot/cd < 1.0/cd*0.85) return null;
- 
-  const fov=1.4, ss=Math.min(W,H)*fov/cZ;
-  return { x:W*0.5+cX*ss, y:H*0.5-cY*ss, z:cZ, d:dot/cd };
+function eligSelect(field, value){
+  eligState[field]=value;
+  document.querySelectorAll(`[data-elig-${field}]`).forEach(b=>b.classList.remove('active'));
+  document.querySelector(`[data-elig-${field}="${value}"]`).classList.add('active');
+  runEligibility();
+}
+function eligSelectVersion(v){
+  eligState.version=v||null;
+  runEligibility();
 }
  
-const EU = new Set(['BE','DE','FR','IT','ES','PT','NL','LU','CH','AT','DK','SE','FI','IE','PL','CZ','SK','HU','RO','BG','GR','HR','SI','EE','LV','LT','CY','MT','GB','NO']);
+function runEligibility(){
+  const host=eligState.target;
+  const {plan,billing,version}=eligState;
+  if(!host&&!plan&&!billing&&!version){el('elig-result').style.display='none';return;}
  
-const C = [
-  {a:51.51,o:-0.13,s:6,c:'GB'},{a:48.86,o:2.35,s:6,c:'FR'},{a:52.52,o:13.41,s:5,c:'DE'},
-  {a:40.42,o:-3.70,s:5,c:'ES'},{a:41.90,o:12.50,s:5,c:'IT'},{a:45.46,o:9.19,s:5,c:'IT'},
-  {a:50.85,o:4.35,s:4,c:'BE'},{a:52.37,o:4.90,s:4,c:'NL'},{a:48.21,o:16.37,s:4,c:'AT'},
-  {a:59.33,o:18.07,s:3.5,c:'SE'},{a:55.68,o:12.57,s:3.5,c:'DK'},{a:60.17,o:24.94,s:3,c:'FI'},
-  {a:38.72,o:-9.14,s:4,c:'PT'},{a:52.23,o:21.01,s:4,c:'PL'},{a:47.50,o:19.04,s:3.5,c:'HU'},
-  {a:44.43,o:26.10,s:3.5,c:'RO'},{a:37.98,o:23.73,s:3.5,c:'GR'},{a:53.35,o:-6.26,s:3,c:'IE'},
-  {a:53.48,o:-2.24,s:4,c:'GB'},{a:55.95,o:-3.19,s:2.5,c:'GB'},{a:51.45,o:-2.59,s:3,c:'GB'},
-  {a:45.76,o:4.84,s:3.5,c:'FR'},{a:43.30,o:5.37,s:3,c:'FR'},{a:43.60,o:1.44,s:2.5,c:'FR'},
-  {a:44.84,o:-0.58,s:2.5,c:'FR'},{a:43.70,o:7.27,s:2.5,c:'FR'},
-  {a:48.14,o:11.58,s:4,c:'DE'},{a:53.55,o:9.99,s:3.5,c:'DE'},{a:50.94,o:6.96,s:3.5,c:'DE'},
-  {a:50.11,o:8.68,s:4,c:'DE'},{a:48.78,o:9.18,s:3,c:'DE'},{a:51.34,o:12.37,s:2.5,c:'DE'},
-  {a:41.39,o:2.17,s:4,c:'ES'},{a:39.47,o:-0.38,s:3,c:'ES'},{a:37.39,o:-5.98,s:2.5,c:'ES'},
-  {a:40.85,o:14.27,s:3.5,c:'IT'},{a:43.77,o:11.25,s:2.5,c:'IT'},{a:45.07,o:7.69,s:3,c:'IT'},
-  {a:41.15,o:-8.61,s:3,c:'PT'},{a:51.22,o:4.40,s:2.5,c:'BE'},{a:51.05,o:3.72,s:2,c:'BE'},
-  {a:51.92,o:4.48,s:2.5,c:'NL'},{a:47.38,o:8.54,s:3,c:'CH'},{a:46.20,o:6.14,s:2.5,c:'CH'},
-  {a:49.61,o:6.13,s:1.5,c:'LU'},{a:50.08,o:14.44,s:3,c:'CZ'},{a:48.15,o:17.11,s:2.5,c:'SK'},
-  {a:50.06,o:19.94,s:2.5,c:'PL'},{a:42.70,o:23.32,s:3,c:'BG'},{a:45.81,o:15.98,s:2.5,c:'HR'},
-  {a:46.06,o:14.51,s:2,c:'SI'},{a:59.44,o:24.75,s:2,c:'EE'},{a:56.95,o:24.11,s:2,c:'LV'},
-  {a:54.69,o:25.28,s:2,c:'LT'},{a:57.71,o:11.97,s:2,c:'SE'},
-  {a:59.91,o:10.75,s:3,c:null},{a:55.76,o:37.62,s:5,c:null},{a:41.01,o:28.98,s:5,c:null},
-  {a:50.45,o:30.52,s:4,c:null},{a:36.75,o:3.06,s:2.5,c:null},{a:33.57,o:-7.59,s:3,c:null},
-  {a:30.04,o:31.24,s:4,c:null},
-];
+  const rows=[];
  
-function drawFrame(t) {
-  ctx.clearRect(0,0,W,H);
-  ctx.fillStyle='#000005'; ctx.fillRect(0,0,W,H);
-  stars.forEach(s => {
-    ctx.fillStyle=`rgba(255,255,255,${s.b+Math.sin(t*s.sp)*0.1})`;
-    ctx.beginPath(); ctx.arc(s.x*W,s.y*H,s.s,0,Math.PI*2); ctx.fill();
-  });
+  // ── PLAN ──
+  if(plan){
+    if(host==='saas'){
+      if(plan==='standard') rows.push({ok:'ko',icon:'❌',text:lang==='fr'?'Plan <strong>Standard</strong> : Studio et API non disponibles. Pour migrer sur SaaS avec personnalisation, le plan <strong>Custom</strong> est requis.':'Plan <strong>Standard</strong>: Studio and API not available. A <strong>Custom</strong> plan is required for customization on SaaS.'});
+      else rows.push({ok:'ok',icon:'✅',text:lang==='fr'?'Plan <strong>Custom</strong> : compatible avec Odoo Cloud. Studio et API inclus.':'Plan <strong>Custom</strong>: compatible with Odoo Cloud. Studio and API included.'});
+    } else if(host==='sh'){
+      if(plan==='standard') rows.push({ok:'warn',icon:'⚠️',text:lang==='fr'?'Plan <strong>Standard</strong> : un abonnement <strong>personnalisé</strong> est obligatoire sur Odoo.sh.':'Plan <strong>Standard</strong>: a <strong>Custom</strong> subscription is mandatory on Odoo.sh.'});
+      else rows.push({ok:'ok',icon:'✅',text:lang==='fr'?'Plan <strong>Custom</strong> : requis et compatible avec Odoo.sh.':'Plan <strong>Custom</strong>: required and compatible with Odoo.sh.'});
+    } else if(host==='onprem'){
+      if(plan==='standard') rows.push({ok:'warn',icon:'⚠️',text:lang==='fr'?'Plan <strong>Standard</strong> : un abonnement <strong>personnalisé</strong> est obligatoire pour On Premise.':'Plan <strong>Standard</strong>: a <strong>Custom</strong> subscription is mandatory for On Premise.'});
+      else rows.push({ok:'ok',icon:'✅',text:lang==='fr'?'Plan <strong>Custom</strong> : requis et compatible avec On Premise.':'Plan <strong>Custom</strong>: required and compatible with On Premise.'});
+    }
+  }
  
-  const lLat=(44+Math.sin(t*0.00012)*0.8)*Math.PI/180, lLon=(8+Math.cos(t*0.0001)*1.0)*Math.PI/180;
+  // ── BILLING ──
+  if(billing){
+    if(host==='saas'){
+      rows.push({ok:'ok',icon:'✅',text:lang==='fr'?`Facturation <strong>${billing==='monthly'?'mensuelle':'annuelle'}</strong> : compatible avec Odoo Cloud.`:`<strong>${billing==='monthly'?'Monthly':'Yearly'}</strong> billing: compatible with Odoo Cloud.`});
+    } else if(host==='sh'){
+      if(billing==='monthly') rows.push({ok:'ok',icon:'✅',text:lang==='fr'?'Facturation <strong>mensuelle</strong> : compatible avec Odoo.sh.':'<strong>Monthly</strong> billing: compatible with Odoo.sh.'});
+      else rows.push({ok:'ok',icon:'✅',text:lang==='fr'?'Facturation <strong>annuelle</strong> : compatible avec Odoo.sh.':'<strong>Yearly</strong> billing: compatible with Odoo.sh.'});
+    } else if(host==='onprem'){
+      if(billing==='monthly') rows.push({ok:'ko',icon:'❌',text:lang==='fr'?'Facturation <strong>mensuelle</strong> : non compatible avec On Premise. Un abonnement <strong>annuel</strong> est requis.':'<strong>Monthly</strong> billing: not compatible with On Premise. A <strong>yearly</strong> subscription is required.'});
+      else rows.push({ok:'ok',icon:'✅',text:lang==='fr'?'Facturation <strong>annuelle</strong> : compatible avec On Premise.':'<strong>Yearly</strong> billing: compatible with On Premise.'});
+    }
+  }
+ 
+  // ── VERSION ──
+  if(version){
+    const vMap={'19x':'19.x','19':'19.0','18':'18.0','17':'17.0','16':'16.0','15':'15.0','14':'14.0','older':lang==='fr'?'Antérieure à v14':'Older than v14'};
+    const vLabel=vMap[version]||version;
+    const shSupported=['19x','19','18','17','16','15','14'];
+    const shEndDates={'14':'31/10/2026','15':'31/10/2027','16':'31/10/2028','17':'31/10/2029','18':'31/10/2030','19':'31/10/2031','19x':'31/10/2031'};
+ 
+    if(host==='saas'){
+      if(version==='19x') rows.push({ok:'ok',icon:'✅',text:lang==='fr'?`Version <strong>${vLabel}</strong> : compatible avec Odoo Cloud (SaaS).`:`Version <strong>${vLabel}</strong>: compatible with Odoo Cloud (SaaS).`});
+      else if(['18','19'].includes(version)) rows.push({ok:'ok',icon:'✅',text:lang==='fr'?`Version <strong>${vLabel}</strong> : compatible avec Odoo Cloud. Une mise à jour vers la dernière version peut être requise.`:`Version <strong>${vLabel}</strong>: compatible with Odoo Cloud. An upgrade to the latest version may be required.`});
+      else rows.push({ok:'warn',icon:'⚠️',text:lang==='fr'?`Version <strong>${vLabel}</strong> : Odoo Cloud impose généralement la dernière version. Une migration sera nécessaire.`:`Version <strong>${vLabel}</strong>: Odoo Cloud generally requires the latest version. A migration will be needed.`});
+    } else if(host==='sh'){
+      if(version==='older') rows.push({ok:'ko',icon:'❌',text:lang==='fr'?`Version <strong>${vLabel}</strong> : non supportée sur Odoo.sh. Seules les 6 dernières versions sont acceptées.`:`Version <strong>${vLabel}</strong>: not supported on Odoo.sh. Only the last 6 versions are accepted.`});
+      else if(shSupported.includes(version)){
+        const end=shEndDates[version];
+        rows.push({ok:'ok',icon:'✅',text:lang==='fr'?`Version <strong>${vLabel}</strong> : compatible avec Odoo.sh${end?' (retrait prévu le '+end+')':''}.`:`Version <strong>${vLabel}</strong>: compatible with Odoo.sh${end?' (removal planned '+end+')':''}.`});
+      }
+    } else if(host==='onprem'){
+      rows.push({ok:'ok',icon:'✅',text:lang==='fr'?`Version <strong>${vLabel}</strong> : toutes les versions sont acceptées sur On Premise.`:`Version <strong>${vLabel}</strong>: all versions are accepted on On Premise.`});
+    }
+  }
+ 
+  if(rows.length===0){el('elig-result').style.display='none';return;}
+ 
+  // Verdict
+  const koCount=rows.filter(r=>r.ok==='ko').length;
+  const warnCount=rows.filter(r=>r.ok==='warn').length;
+  let verdict, vClass, vIcon;
+  if(koCount>0){verdict=lang==='fr'?'Non éligible — des points bloquants ont été détectés':'Not eligible — blocking issues detected';vClass='ineligible';vIcon='🚫';}
+  else if(warnCount>0){verdict=lang==='fr'?'Éligible avec conditions — vérifiez les points d\'attention':'Eligible with conditions — check warnings';vClass='partial';vIcon='⚠️';}
+  else{verdict=lang==='fr'?'Éligible — migration compatible':'Eligible — compatible migration';vClass='eligible';vIcon='✅';}
+ 
+  let html=rows.map(r=>`<div class="elig-row ${r.ok}"><span class="elig-status">${r.icon}</span><span class="elig-text">${r.text}</span></div>`).join('');
+  html+=`<div class="elig-verdict ${vClass}"><span class="elig-verdict-icon">${vIcon}</span><span>${verdict}</span></div>`;
+ 
+  const res=el('elig-result');
+  res.style.display='block';
+  res.innerHTML=html;
+}
+ 
+function eligReset(){
+  eligState={target:null,plan:null,billing:null,version:null};
+  document.querySelectorAll('[data-elig-target],[data-elig-plan],[data-elig-billing]').forEach(b=>b.classList.remove('active'));
+  el('elig-version').value='';
+  el('elig-result').style.display='none';
+}
+ 
+ 
+const canvas=document.getElementById('earthCanvas'),ctx=canvas.getContext('2d');
+let W,H,time=0,highlightedCountry=null,geoData=null;
+const stars=Array.from({length:180},()=>({x:Math.random(),y:Math.random(),s:Math.random()*1.2+0.3,b:Math.random()*0.4+0.15,sp:Math.random()*0.003+0.001}));
+function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+resize();window.addEventListener('resize',resize);
+fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(r=>r.json()).then(topo=>{geoData=decodeTopo(topo);animate();}).catch(()=>animate());
+function decodeTopo(topo){const arcs=topo.arcs,sc=topo.transform.scale,tr=topo.transform.translate;const da=arcs.map(a=>{let x=0,y=0;return a.map(p=>{x+=p[0];y+=p[1];return[x*sc[0]+tr[0],y*sc[1]+tr[1]];});});const iso={'56':'BE','276':'DE','250':'FR','826':'GB','380':'IT','724':'ES','620':'PT','528':'NL','442':'LU','756':'CH','40':'AT','208':'DK','752':'SE','246':'FI','372':'IE','616':'PL','203':'CZ','703':'SK','348':'HU','642':'RO','100':'BG','300':'GR','191':'HR','705':'SI','233':'EE','428':'LV','440':'LT','196':'CY','470':'MT','578':'NO','804':'UA','112':'BY','643':'RU','688':'RS','70':'BA','499':'ME','807':'MK','8':'AL','498':'MD','792':'TR','788':'TN','12':'DZ','504':'MA','434':'LY','818':'EG'};const ra=i=>i>=0?da[i]:[...da[~i]].reverse();const feats=[];topo.objects.countries.geometries.forEach(g=>{const rings=[];const proc=refs=>{let c=[];refs.forEach(i=>c=c.concat(ra(i)));rings.push(c);};if(g.type==='Polygon')g.arcs.forEach(proc);else if(g.type==='MultiPolygon')g.arcs.forEach(p=>p.forEach(proc));feats.push({iso:iso[String(g.id)]||null,rings});});return feats;}
+function project(lon,lat,t){const lookLat=(44+Math.sin(t*0.00012)*0.8)*Math.PI/180,lookLon=(8+Math.cos(t*0.0001)*1.0)*Math.PI/180,camAz=(215+Math.sin(t*0.00008)*2)*Math.PI/180,camEl=(32+Math.sin(t*0.00007)*1.5)*Math.PI/180,CD=1.25;const phi=lat*Math.PI/180,lam=lon*Math.PI/180;const px=Math.cos(phi)*Math.cos(lam),py=Math.cos(phi)*Math.sin(lam),pz=Math.sin(phi);const lx=Math.cos(lookLat)*Math.cos(lookLon),ly=Math.cos(lookLat)*Math.sin(lookLon),lz=Math.sin(lookLat);const cx=lx-Math.cos(camEl)*Math.cos(camAz)*(CD-1),cy=ly-Math.cos(camEl)*Math.sin(camAz)*(CD-1),cz=lz+Math.sin(camEl)*(CD-1);let fx=lx-cx,fy=ly-cy,fz=lz-cz;const fl=Math.sqrt(fx*fx+fy*fy+fz*fz);fx/=fl;fy/=fl;fz/=fl;let rx=fy-fz*0,ry=fz*0-fx,rz=0;const rl=Math.sqrt(rx*rx+ry*ry+rz*rz);rx/=rl;ry/=rl;let ux=ry*fz-rz*fy,uy=rz*fx-rx*fz,uz=rx*fy-ry*fx;const ro=Math.sin(t*0.00006)*0.025,cr=Math.cos(ro),sr=Math.sin(ro);const rx2=rx*cr+ux*sr,ry2=ry*cr+uy*sr,rz2=rz*cr+uz*sr,ux2=-rx*sr+ux*cr,uy2=-ry*sr+uy*cr,uz2=-rz*sr+uz*cr;const dx=px-cx,dy=py-cy,dz=pz-cz;const cZ=dx*fx+dy*fy+dz*fz;if(cZ<0.05)return null;const cX=dx*rx2+dy*ry2+dz*rz2,cY=dx*ux2+dy*uy2+dz*uz2;const dot=px*cx+py*cy+pz*cz,cd=Math.sqrt(cx*cx+cy*cy+cz*cz);if(dot/cd<1.0/cd*0.85)return null;const fov=0.85,ss=Math.min(W,H)*fov/cZ;return{x:W*0.5+cX*ss,y:H*0.5-cY*ss,z:cZ,d:dot/cd};}
+const EU=new Set(['BE','DE','FR','IT','ES','PT','NL','LU','CH','AT','DK','SE','FI','IE','PL','CZ','SK','HU','RO','BG','GR','HR','SI','EE','LV','LT','CY','MT','GB','NO']);
+const C=[{a:51.51,o:-0.13,s:6,c:'GB'},{a:48.86,o:2.35,s:6,c:'FR'},{a:52.52,o:13.41,s:5,c:'DE'},{a:40.42,o:-3.70,s:5,c:'ES'},{a:41.90,o:12.50,s:5,c:'IT'},{a:45.46,o:9.19,s:5,c:'IT'},{a:50.85,o:4.35,s:4,c:'BE'},{a:52.37,o:4.90,s:4,c:'NL'},{a:48.21,o:16.37,s:4,c:'AT'},{a:59.33,o:18.07,s:3.5,c:'SE'},{a:55.68,o:12.57,s:3.5,c:'DK'},{a:60.17,o:24.94,s:3,c:'FI'},{a:38.72,o:-9.14,s:4,c:'PT'},{a:52.23,o:21.01,s:4,c:'PL'},{a:47.50,o:19.04,s:3.5,c:'HU'},{a:44.43,o:26.10,s:3.5,c:'RO'},{a:37.98,o:23.73,s:3.5,c:'GR'},{a:53.35,o:-6.26,s:3,c:'IE'},{a:47.38,o:8.54,s:3,c:'CH'},{a:49.61,o:6.13,s:1.5,c:'LU'},{a:50.08,o:14.44,s:3,c:'CZ'},{a:59.91,o:10.75,s:3,c:null},{a:55.76,o:37.62,s:5,c:null},{a:41.01,o:28.98,s:5,c:null},{a:30.04,o:31.24,s:4,c:null}];
+function drawFrame(t){
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#0e0b1e';ctx.fillRect(0,0,W,H);
+  stars.forEach(s=>{ctx.fillStyle=`rgba(255,255,255,${s.b+Math.sin(t*s.sp)*0.1})`;ctx.beginPath();ctx.arc(s.x*W,s.y*H,s.s,0,Math.PI*2);ctx.fill();});
+  const lLat=(44+Math.sin(t*0.00012)*0.8)*Math.PI/180,lLon=(8+Math.cos(t*0.0001)*1.0)*Math.PI/180;
   const limb=[];
-  for(let a=-180;a<=180;a+=2){
-    const az=a*Math.PI/180;
-    for(let d=55;d<=88;d+=4){
-      const dr=d*Math.PI/180;
-      const lat2=Math.asin(Math.sin(lLat)*Math.cos(dr)+Math.cos(lLat)*Math.sin(dr)*Math.cos(az));
-      const lon2=lLon+Math.atan2(Math.sin(az)*Math.sin(dr)*Math.cos(lLat),Math.cos(dr)-Math.sin(lLat)*Math.sin(lat2));
-      const p=project(lon2*180/Math.PI,lat2*180/Math.PI,t);
-      if(p) limb.push(p);
-    }
-  }
- 
-  if(limb.length>10){
-    const bk={};
-    limb.forEach(p=>{const b=Math.floor(p.x/8)*8;if(!(b in bk)||p.y<bk[b])bk[b]=p.y;});
-    const bxs=Object.keys(bk).map(Number).sort((a,b)=>a-b);
- 
-    if(bxs.length>2){
-      ctx.save();ctx.beginPath();
-      ctx.moveTo(bxs[0]-200,H+200);
-      bxs.forEach(b=>ctx.lineTo(b,bk[b]));
-      ctx.lineTo(bxs[bxs.length-1]+200,H+200);ctx.closePath();
-      const og=ctx.createLinearGradient(0,0,0,H);
-      og.addColorStop(0,'#06101f');og.addColorStop(0.5,'#050c1a');og.addColorStop(1,'#030815');
-      ctx.fillStyle=og;ctx.fill();ctx.restore();
- 
-      for(let i=0;i<18;i++){
-        ctx.beginPath();const off=-2-i*3;
-        ctx.moveTo(bxs[0]-80,bk[bxs[0]]+off);
-        bxs.forEach(b=>ctx.lineTo(b,bk[b]+off));
-        ctx.lineTo(bxs[bxs.length-1]+80,bk[bxs[bxs.length-1]]+off);
-        if(i<3){ctx.strokeStyle=`rgba(90,180,255,${0.28-i*0.07})`;ctx.lineWidth=2;}
-        else if(i<8){ctx.strokeStyle=`rgba(50,130,230,${0.1-(i-3)*0.018})`;ctx.lineWidth=3.5;}
-        else{ctx.strokeStyle=`rgba(30,80,180,${0.035-(i-8)*0.003})`;ctx.lineWidth=5;}
-        ctx.stroke();
-      }
- 
-      ctx.save();ctx.beginPath();
-      ctx.moveTo(bxs[0]-200,H+200);
-      bxs.forEach(b=>ctx.lineTo(b,bk[b]+1));
-      ctx.lineTo(bxs[bxs.length-1]+200,H+200);ctx.closePath();ctx.clip();
-    }
-  }
- 
-  if(geoData) geoData.forEach(f=>{
-    const isHL=highlightedCountry&&f.iso===highlightedCountry;
-    const isEU=f.iso&&EU.has(f.iso);
-    f.rings.forEach(ring=>{
-      ctx.beginPath();let st=false,vis=false;
-      for(let i=0;i<ring.length;i++){
-        const p=project(ring[i][0],ring[i][1],t);
-        if(!p){st=false;continue;}vis=true;
-        if(!st){ctx.moveTo(p.x,p.y);st=true;}else ctx.lineTo(p.x,p.y);
-      }
-      if(!vis)return;ctx.closePath();
-      if(isHL){
-        ctx.fillStyle='rgba(0,180,170,0.25)';ctx.strokeStyle='rgba(0,220,210,0.6)';
-        ctx.lineWidth=1.2;ctx.shadowColor='rgba(0,200,195,0.5)';ctx.shadowBlur=15;
-      }else if(isEU){
-        ctx.fillStyle='rgba(10,35,25,0.5)';ctx.strokeStyle='rgba(30,80,60,0.3)';
-        ctx.lineWidth=0.5;ctx.shadowBlur=0;
-      }else{
-        ctx.fillStyle='rgba(8,25,18,0.35)';ctx.strokeStyle='rgba(20,55,40,0.15)';
-        ctx.lineWidth=0.3;ctx.shadowBlur=0;
-      }
-      ctx.fill();ctx.stroke();ctx.shadowBlur=0;
-    });
-  });
- 
-  C.forEach(c=>{
-    const p=project(c.o,c.a,t);if(!p)return;
-    const isHL=highlightedCountry&&c.c===highlightedCountry;
-    const pulse=Math.sin(t*0.0025+c.a*0.12)*0.2+0.8;
-    const df=Math.pow(Math.max(0,Math.min(1,p.d)),0.5);
-    let col,al,gs;
-    if(isHL){col='0,230,220';al=0.95*df;gs=c.s*5;}
-    else if(c.c){col='255,200,60';al=(0.55+pulse*0.3)*df;gs=c.s*3.5;}
-    else{col='220,180,80';al=0.2*df;gs=c.s*2;}
-    const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,gs);
-    g.addColorStop(0,`rgba(${col},${al})`);g.addColorStop(0.25,`rgba(${col},${al*0.55})`);
-    g.addColorStop(0.6,`rgba(${col},${al*0.15})`);g.addColorStop(1,`rgba(${col},0)`);
-    ctx.beginPath();ctx.arc(p.x,p.y,gs,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
-    ctx.beginPath();ctx.arc(p.x,p.y,Math.max(0.5,c.s*0.4*df),0,Math.PI*2);
-    ctx.fillStyle=`rgba(${col},${Math.min(1,al*2)})`;ctx.fill();
-  });
- 
+  for(let a=-180;a<=180;a+=2){const az=a*Math.PI/180;for(let d=55;d<=88;d+=4){const dr=d*Math.PI/180;const lat2=Math.asin(Math.sin(lLat)*Math.cos(dr)+Math.cos(lLat)*Math.sin(dr)*Math.cos(az));const lon2=lLon+Math.atan2(Math.sin(az)*Math.sin(dr)*Math.cos(lLat),Math.cos(dr)-Math.sin(lLat)*Math.sin(lat2));const p=project(lon2*180/Math.PI,lat2*180/Math.PI,t);if(p)limb.push(p);}}
+  if(limb.length>10){const bk={};limb.forEach(p=>{const b=Math.floor(p.x/8)*8;if(!(b in bk)||p.y<bk[b])bk[b]=p.y;});const bxs=Object.keys(bk).map(Number).sort((a,b)=>a-b);
+    if(bxs.length>2){ctx.save();ctx.beginPath();ctx.moveTo(bxs[0]-200,H+200);bxs.forEach(b=>ctx.lineTo(b,bk[b]));ctx.lineTo(bxs[bxs.length-1]+200,H+200);ctx.closePath();const og=ctx.createLinearGradient(0,0,0,H);og.addColorStop(0,'#12103a');og.addColorStop(0.5,'#0e0c2e');og.addColorStop(1,'#0a0820');ctx.fillStyle=og;ctx.fill();ctx.restore();
+    for(let i=0;i<18;i++){ctx.beginPath();const off=-2-i*3;ctx.moveTo(bxs[0]-80,bk[bxs[0]]+off);bxs.forEach(b=>ctx.lineTo(b,bk[b]+off));ctx.lineTo(bxs[bxs.length-1]+80,bk[bxs[bxs.length-1]]+off);if(i<3){ctx.strokeStyle=`rgba(90,180,255,${0.28-i*0.07})`;ctx.lineWidth=2;}else if(i<8){ctx.strokeStyle=`rgba(50,130,230,${0.1-(i-3)*0.018})`;ctx.lineWidth=3.5;}else{ctx.strokeStyle=`rgba(30,80,180,${0.035-(i-8)*0.003})`;ctx.lineWidth=5;}ctx.stroke();}
+    ctx.save();ctx.beginPath();ctx.moveTo(bxs[0]-200,H+200);bxs.forEach(b=>ctx.lineTo(b,bk[b]+1));ctx.lineTo(bxs[bxs.length-1]+200,H+200);ctx.closePath();ctx.clip();}}
+  if(geoData)geoData.forEach(f=>{const isHL=highlightedCountry&&f.iso===highlightedCountry,isEU=f.iso&&EU.has(f.iso);f.rings.forEach(ring=>{ctx.beginPath();let st=false,vis=false;for(let i=0;i<ring.length;i++){const p=project(ring[i][0],ring[i][1],t);if(!p){st=false;continue;}vis=true;if(!st){ctx.moveTo(p.x,p.y);st=true;}else ctx.lineTo(p.x,p.y);}if(!vis)return;ctx.closePath();if(isHL){ctx.fillStyle='rgba(0,180,170,0.25)';ctx.strokeStyle='rgba(0,220,210,0.6)';ctx.lineWidth=1.2;ctx.shadowColor='rgba(0,200,195,0.5)';ctx.shadowBlur=15;}else if(isEU){ctx.fillStyle='rgba(20,60,40,0.65)';ctx.strokeStyle='rgba(50,120,80,0.5)';ctx.lineWidth=0.6;ctx.shadowBlur=0;}else{ctx.fillStyle='rgba(12,35,22,0.45)';ctx.strokeStyle='rgba(30,70,50,0.22)';ctx.lineWidth=0.3;ctx.shadowBlur=0;}ctx.fill();ctx.stroke();ctx.shadowBlur=0;});});
+  C.forEach(c=>{const p=project(c.o,c.a,t);if(!p)return;const isHL=highlightedCountry&&c.c===highlightedCountry,pulse=Math.sin(t*0.0025+c.a*0.12)*0.2+0.8,df=Math.pow(Math.max(0,Math.min(1,p.d)),0.5);let col,al,gs;if(isHL){col='0,230,220';al=0.95*df;gs=c.s*5;}else if(c.c){col='255,200,60';al=(0.55+pulse*0.3)*df;gs=c.s*3.5;}else{col='220,180,80';al=0.2*df;gs=c.s*2;}const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,gs);g.addColorStop(0,`rgba(${col},${al})`);g.addColorStop(0.25,`rgba(${col},${al*0.55})`);g.addColorStop(0.6,`rgba(${col},${al*0.15})`);g.addColorStop(1,`rgba(${col},0)`);ctx.beginPath();ctx.arc(p.x,p.y,gs,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();ctx.beginPath();ctx.arc(p.x,p.y,Math.max(0.5,c.s*0.4*df),0,Math.PI*2);ctx.fillStyle=`rgba(${col},${Math.min(1,al*2)})`;ctx.fill();});
   ctx.restore();
 }
- 
 function animate(){time+=16;drawFrame(time);requestAnimationFrame(animate);}
- 
-function highlightCountry(code){
-  if(code==='UK')code='GB';
-  highlightedCountry=code;
-}
- 
-const _origSelectLocation = selectLocation;
-selectLocation = function(loc) {
-  _origSelectLocation(loc);
-  highlightCountry({be:'BE',uk:'GB',ch:'CH',row:null,eu:null}[loc]||null);
-};
- 
-const _origOnEuCountryChange = onEuCountryChange;
-onEuCountryChange = function() {
-  _origOnEuCountryChange();
-  highlightCountry(document.getElementById('eu-country').value||null);
-};
+function highlightCountry(code){if(code==='UK')code='GB';highlightedCountry=code;}
 </script>
- 
-</div><!-- end content-layer -->
- 
 </body>
 </html>
- 
